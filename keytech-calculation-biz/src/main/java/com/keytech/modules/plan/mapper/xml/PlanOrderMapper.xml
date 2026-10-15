@@ -1,0 +1,169 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.keytech.modules.plan.mapper.PlanOrderMapper">
+    <delete id="removeTodoOrder">
+        delete from mes3_plan_order
+        where plan_id = #{planId}
+        and plan_device_id in
+        <foreach collection="planDeviceIdList" item="item" index="index" open="(" close=")" separator=",">
+            #{item}
+        </foreach>
+        and plan_start_time > #{now}
+    </delete>
+
+    <delete id="removePauseOrder">
+        delete from mes3_plan_order
+        where plan_id = #{planId}
+        and plan_device_id in
+        <foreach collection="planDeviceIdList" item="item" index="index" open="(" close=")" separator=",">
+            #{item}
+        </foreach>
+        and plan_start_time >= (select max(create_time) from mes3_plan_pause where plan_id = #{planId} and type = 5)
+        and plan_start_time &lt; #{now}
+    </delete>
+    <select id="queryPlanOrderTotal" resultType="com.keytech.modules.plan.dto.PlanOrderTotalDTO">
+        select
+            t.device_id,
+            max(t.task_name) as task_name,
+            count(1) as task_count,
+            sum(case when execute_status = 4 then 1 else 0 end) as task_complete_count,
+            sum(case when execute_status = 1 then 1 else 0 end) as task_no_complete_count,
+            sum(case when a.jcxsl is null then 0 else a.jcxsl end) as order_result_count,
+            sum(case when b.hgsl is null then 0 else b.hgsl end) as order_result_complete_count,
+            sum(case when b.bhgsl is null then 0 else b.bhgsl end) as order_result_no_complete_count
+        from mes3_plan_order t
+        left join (
+            select result_config_id, count(1) jcxsl from mes3_plan_order_result_config
+            where del_flag = 0
+            group by result_config_id
+        ) a on t.result_config_id = a.result_config_id
+        left join(
+            select order_id,
+                sum(case when is_qualified = 1 or na_flag = 1 then 1 else 0 end) hgsl,
+                sum(case when is_qualified = 0 and na_flag != 1 then 1 else 0 end) bhgsl
+            from mes3_plan_order_result
+            where del_flag = 0
+            and create_time &lt;= NOW()
+            group by order_id
+        ) b on t.id = b.order_id
+        where t.del_flag = 0
+        and t.active_status != 2
+        and t.production_status != 5
+        -- 查询计划时间在当前时间之前是因为非1、2小时例行任务是提前下发，所以需要排除
+        and t.plan_start_time &lt;= NOW()
+        <if test="null != deptCode and '' != deptCode">
+            and t.dept_code = #{deptCode}
+        </if>
+        <if test="null != lineCode and '' != lineCode">
+            and t.line_code = #{lineCode}
+        </if>
+        <if test="null != year and '' != year">
+            and t.real_start_time like concat(#{year}, '%')
+        </if>
+        <if test="null != month and '' != month">
+            and t.real_start_time like concat(#{month}, '%')
+        </if>
+        <if test="null != realStartTime_begin and '' != realStartTime_begin">
+            and t.real_start_time BETWEEN #{realStartTime_begin} and concat(#{realStartTime_end}, ' 23:59:59')
+        </if>
+        <if test="null != taskId and '' != taskId">
+            and t.task_id in
+            <foreach collection="taskIdList" item="item" index="index" open="(" close=")" separator=",">
+                #{item}
+            </foreach>
+        </if>
+        <if test="null != planType">
+            and t.recipe_type_code = #{planType}
+        </if>
+        <if test="null != taskKindCode">
+            and exists(
+                select 1 from mes3_mdm_task c
+                where c.del_flag = 0 and c.id = t.task_id
+                and c.task_kind_code = #{taskKindCode}
+            )
+        </if>
+        <if test="null != deviceIds and '' != deviceIds">
+            and t.device_id in
+            <foreach collection="deviceList" item="item" index="index" open="(" close=")" separator=",">
+                #{item}
+            </foreach>
+        </if>
+        <if test="null != postId and '' != postId">
+            and t.post_id = #{postId}
+        </if>
+        group by t.device_id, t.task_id
+        order by t.device_id, t.task_id
+    </select>
+
+    <select id="queryPlanOrderItemTotal" resultType="com.keytech.modules.plan.dto.PlanOrderResultTotalDTO">
+        select
+            t.device_id,
+            max(t.task_name) as task_name,
+            max(a.item_name) as item_name,
+            count(1) as item_count,
+            sum(case when sjjcsl is null then 0 else sjjcsl end) as complete_count,
+            sum(case when hgsl is null then 0 else hgsl end) as order_result_complete_count,
+            sum(case when bhgsl is null then 0 else bhgsl end) as order_result_no_complete_count
+        from mes3_plan_order t
+        left join mes3_plan_order_result_config a on t.result_config_id = a.result_config_id and a.del_flag = 0
+        left join(
+            select order_id, task_id, item_id, count(1) as sjjcsl,
+                sum(case when is_qualified = 1 or na_flag = 1 then 1 else 0 end) hgsl,
+                sum(case when is_qualified = 0 and na_flag != 1 then 1 else 0 end) bhgsl
+            from mes3_plan_order_result
+            where del_flag = 0
+            -- 查询计划时间在当前时间之前是因为非1、2小时例行任务是提前下发，所以需要排除
+            and create_time &lt;= NOW()
+            group by order_id, task_id, item_id
+        ) b on t.id = b.order_id and t.task_id = b.task_id and a.item_id = b.item_id
+        where t.del_flag = 0
+        -- 查询计划时间在当前时间之前是因为非1、2小时例行任务是提前下发，所以需要排除
+        and t.plan_start_time &lt;= NOW()
+        and t.active_status != 2
+        and t.production_status != 5
+        <if test="null != deptCode and '' != deptCode">
+            and t.dept_code = #{deptCode}
+        </if>
+        <if test="null != lineCode and '' != lineCode">
+            and t.line_code = #{lineCode}
+        </if>
+        <if test="null != year and '' != year">
+            and t.real_start_time like concat(#{year}, '%')
+        </if>
+        <if test="null != month and '' != month">
+            and t.real_start_time like concat(#{month}, '%')
+        </if>
+        <if test="null != realStartTime_begin and '' != realStartTime_begin">
+            and t.real_start_time BETWEEN #{realStartTime_begin} and concat(#{realStartTime_end}, ' 23:59:59')
+        </if>
+        <if test="null != taskId and '' != taskId">
+            and t.task_id in
+            <foreach collection="taskIdList" item="item" index="index" open="(" close=")" separator=",">
+                #{item}
+            </foreach>
+        </if>
+        <if test="null != planType and '' != planType">
+            and t.recipe_type_code = #{planType}
+        </if>
+        <if test="null != deviceIds and '' != deviceIds">
+            and t.device_id in
+            <foreach collection="deviceList" item="item" index="index" open="(" close=")" separator=",">
+                #{item}
+            </foreach>
+        </if>
+        <if test="null != itemName and '' != itemName">
+            and a.item_name like concat('%', #{itemName}, '%')
+        </if>
+        <if test="null != taskKindCode">
+            and exists(
+                select 1 from mes3_mdm_task c
+                where c.del_flag = 0 and c.id = t.task_id
+                and c.task_kind_code = #{taskKindCode}
+            )
+        </if>
+        <if test="null != postId and '' != postId">
+            and t.post_id = #{postId}
+        </if>
+        group by t.device_id, t.task_id, a.item_id
+    </select>
+</mapper>

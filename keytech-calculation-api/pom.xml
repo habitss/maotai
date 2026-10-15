@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    <parent>
+        <artifactId>keytech-module-calculation</artifactId>
+        <groupId>org.jeecgframework.boot</groupId>
+        <version>3.0</version>
+    </parent>
+    <version>3.0</version>
+    <modules>
+        <module>keytech-calculation-cloud-api</module>
+        <module>keytech-calculation-local-api</module>
+    </modules>
+    <artifactId>keytech-calculation-api</artifactId>
+    <packaging>pom</packaging>
+
+    <properties>
+
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+    </properties>
+    <distributionManagement>
+        <repository>
+            <id>release</id>
+            <url>http://114.67.113.216:8081/repository/maven-releases/</url>
+        </repository>
+    </distributionManagement>
+
+</project>

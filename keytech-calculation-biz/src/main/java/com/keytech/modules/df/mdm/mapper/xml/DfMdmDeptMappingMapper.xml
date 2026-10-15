@@ -1,0 +1,100 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.keytech.modules.df.mdm.mapper.DfMdmDeptMappingMapper">
+    <insert id="syncMdmDeptMapping">
+        <choose>
+            <when test="_databaseId == 'mysql'">
+                INSERT INTO mes3_mdm_df_dept_mapping (mdm_dept_code, mdm_dept_name, mdm_full_code, mdm_full_name, dept_type, sync_time, create_time)
+                SELECT mdm_dept_code, mdm_dept_name, mdm_full_code, mdm_full_name, dept_type, NOW(), NOW()
+                FROM (
+                    SELECT
+                        fac_code AS mdm_dept_code,
+                        fac_desc AS mdm_dept_name,
+                        fac_code AS mdm_full_code,
+                        fac_desc AS mdm_full_name,
+                        10 AS dept_type
+                    FROM mes3_mdm_df_indicator
+                    WHERE fac_code IS NOT NULL
+                    GROUP BY fac_code, fac_desc
+
+                    UNION ALL
+
+                    SELECT
+                        depar_code AS mdm_dept_code,
+                        depar_desc AS mdm_dept_name,
+                        CONCAT(fac_code, '_', depar_code) AS mdm_full_code,
+                        CONCAT(fac_desc, '/', depar_desc) AS mdm_full_name,
+                        20 AS dept_type
+                    FROM mes3_mdm_df_indicator
+                    WHERE depar_code IS NOT NULL
+                    GROUP BY fac_code, fac_desc, depar_code, depar_desc
+
+                    UNION ALL
+
+                    SELECT
+                        line_code AS mdm_dept_code,
+                        line_desc AS mdm_dept_name,
+                        CONCAT(fac_code, '_', depar_code, '_', process_code, '_', line_code) AS mdm_full_code,
+                        CONCAT(fac_desc, '/', depar_desc, '/', process_desc, '/', line_desc) AS mdm_full_name,
+                        30 AS dept_type
+                    FROM mes3_mdm_df_indicator
+                    WHERE line_code IS NOT NULL
+                    GROUP BY fac_code, fac_desc, depar_code, depar_desc, process_code, process_desc, line_code, line_desc
+                ) t
+                ON DUPLICATE KEY UPDATE
+                mdm_dept_code = VALUES(mdm_dept_code),
+                mdm_dept_name = VALUES(mdm_dept_name),
+                mdm_full_name = VALUES(mdm_full_name),
+                dept_type = VALUES(dept_type)
+                sync_time = NOW()
+            </when>
+            <when test="_databaseId == 'postgresql'">
+                WITH source_data AS (
+                    SELECT
+                        fac_code AS mdm_dept_code,
+                        fac_desc AS mdm_dept_name,
+                        fac_code AS mdm_full_code,
+                        fac_desc AS mdm_full_name,
+                        10 AS dept_type
+                    FROM mes3_mdm_df_indicator
+                    WHERE fac_code IS NOT NULL
+                    GROUP BY fac_code, fac_desc
+
+                    UNION ALL
+
+                    SELECT
+                        depar_code AS mdm_dept_code,
+                        depar_desc AS mdm_dept_name,
+                        CONCAT(fac_code, '_', depar_code) AS mdm_full_code,
+                        CONCAT(fac_desc, '/', depar_desc) AS mdm_full_name,
+                        20 AS dept_type
+                    FROM mes3_mdm_df_indicator
+                    WHERE depar_code IS NOT NULL
+                    GROUP BY fac_code, fac_desc, depar_code, depar_desc
+
+                    UNION ALL
+
+                    SELECT
+                        line_code AS mdm_dept_code,
+                        line_desc AS mdm_dept_name,
+                        CONCAT(fac_code, '_', depar_code, '_', line_code) AS mdm_full_code,
+                        CONCAT(fac_desc, '/', depar_desc, '/', line_desc) AS mdm_full_name,
+                        30 AS dept_type
+                    FROM mes3_mdm_df_indicator
+                    WHERE line_code IS NOT NULL
+                    GROUP BY fac_code, fac_desc, depar_code, depar_desc, line_code, line_desc
+                )
+                INSERT INTO mes3_mdm_df_dept_mapping (mdm_dept_code, mdm_dept_name, mdm_full_code, mdm_full_name, dept_type, sync_time, create_time)
+                SELECT mdm_dept_code, mdm_dept_name, mdm_full_code, mdm_full_name, dept_type, NOW(), NOW()
+                FROM source_data
+                ON CONFLICT (mdm_full_code)
+                DO UPDATE SET
+                mdm_dept_code = EXCLUDED.mdm_dept_code,
+                mdm_dept_name = EXCLUDED.mdm_dept_name,
+                mdm_full_name = EXCLUDED.mdm_full_name,
+                dept_type = EXCLUDED.dept_type,
+                sync_time = NOW()
+            </when>
+        </choose>
+    </insert>
+</mapper>

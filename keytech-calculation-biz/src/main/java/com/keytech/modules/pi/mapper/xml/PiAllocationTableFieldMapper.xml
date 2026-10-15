@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.keytech.modules.pi.mapper.PiAllocationTableFieldMapper">
+
+    <!--获取总数-->
+    <select id="getTableDataCount" resultType="int">
+        select count(*) from ${tableName}
+        <where>
+            del_flag=0
+            <if test="condition != null and condition != ''"> ${condition} </if>
+        </where>
+    </select>
+
+    <!--数据分页-->
+    <select id="getTableData" resultType="java.util.Map">
+        select ${query} from ${tableName}
+        <where>
+            del_flag=0
+            <if test="condition != null and condition != ''"> ${condition} </if>
+        </where>
+        <if test="sort != null and sort != ''">
+            ${sort}
+        </if>
+        <if test="pageNo != null and pageSize != null">
+            <choose>
+                <when test="_databaseId='postgresql'">
+                    limit #{pageSize} offset #{pageNo}
+                </when>
+                <otherwise>
+                    limit #{pageNo}, #{pageSize}
+                </otherwise>
+            </choose>
+        </if>
+    </select>
+
+    <!--获取最新10条数据-->
+    <select id="getTableFieldData" resultType="java.util.Map">
+        SELECT ${query}
+        FROM ${tableName}
+        WHERE del_flag = 0
+        <if test="condition != null and condition != ''"> ${condition} </if>
+        GROUP BY ${query}
+        ORDER BY MAX(id) DESC
+        LIMIT 10
+    </select>
+
+    <!--创建视图(多表)-->
+    <update id="view" >
+        CREATE OR REPLACE VIEW ${viewName} AS
+        select ${viewFields} from ${viewTables} where ${viewConditions}
+    </update>
+</mapper>

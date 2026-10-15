@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.keytech.modules.custom.report.mapper.CustomReportMapper">
+    <select id="getTableTotal" resultType="java.lang.Integer">
+        SELECT count(1) FROM information_schema.tables WHERE table_name LIKE 'mes3_custom_%'
+    </select>
+
+    <!--动态建表-->
+    <update id="createNewTable" parameterType="com.keytech.modules.custom.report.entity.CustomReport">
+        CREATE TABLE ${tableName} (
+          `id` bigint AUTO_INCREMENT,
+          `tenant_id` int(11) COMMENT '租户ID',
+          `factory_code` varchar(80) DEFAULT '' COMMENT '工厂Code',
+          `dept_code` varchar(80)  DEFAULT '' COMMENT '部门Code',
+          `line_code` varchar(80) CHARACTER SET utf8 COLLATE utf8_general_ci DEFAULT '' COMMENT '产线Code',
+          `template_id` varchar(80) CHARACTER SET utf8 COLLATE utf8_general_ci DEFAULT '' COMMENT '填报模板',
+          `sort` int(11) DEFAULT NULL COMMENT '排序',
+          `del_flag` bigint DEFAULT 0 COMMENT '0不删除,1为删除',
+          `create_time` datetime DEFAULT CURRENT_TIMESTAMP COMMENT '数据创建时间',
+          `update_time` datetime DEFAULT CURRENT_TIMESTAMP COMMENT '数据更新时间',
+          `create_by` varchar(50) COLLATE utf8mb4_general_ci DEFAULT NULL COMMENT '创建人',
+          `update_by` varchar(50) COLLATE utf8mb4_general_ci DEFAULT NULL COMMENT '更新人',
+          PRIMARY KEY (`id`)
+        )
+        <!--COMMENT= #{name}-->
+    </update>
+
+    <!--动态查询-->
+    <select id="getTableData" resultType="java.util.Map">
+        SELECT ${field} FROM ${table} where del_flag = 0 and ${condition}
+    </select>
+
+    <!--动态写数据-->
+    <insert id="tableSave">
+        INSERT INTO ${table}(${fieldStr}) VALUES (${fieldValStr})
+    </insert>
+
+    <!--动态更新数据-->
+    <insert id="tableUpdate">
+        UPDATE ${table}
+        SET ${fieldValStr}
+        WHERE ${condition}
+    </insert>
+
+
+</mapper>

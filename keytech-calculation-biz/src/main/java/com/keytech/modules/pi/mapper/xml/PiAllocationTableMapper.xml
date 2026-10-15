@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.keytech.modules.pi.mapper.PiAllocationTableMapper">
+
+    <select id="queryAllocationTableVisits" resultType="com.keytech.modules.pi.vo.PiAllocationTableVisitsVo">
+        select
+            t.name as table_name,
+            t.url,
+            count(1) as visits_count,
+            sum(case when mon = 1 then 1 else 0 end) as mon1,
+            sum(case when mon = 2 then 1 else 0 end) as mon2,
+            sum(case when mon = 3 then 1 else 0 end) as mon3,
+            sum(case when mon = 4 then 1 else 0 end) as mon4,
+            sum(case when mon = 5 then 1 else 0 end) as mon5,
+            sum(case when mon = 6 then 1 else 0 end) as mon6,
+            sum(case when mon = 7 then 1 else 0 end) as mon7,
+            sum(case when mon = 8 then 1 else 0 end) as mon8,
+            sum(case when mon = 9 then 1 else 0 end) as mon9,
+            sum(case when mon = 10 then 1 else 0 end) as mon10,
+            sum(case when mon = 11 then 1 else 0 end) as mon11,
+            sum(case when mon = 12 then 1 else 0 end) as mon12
+        from(
+            select a.create_time, t.name, t.url, EXTRACT(MONTH FROM a.create_time) AS mon,
+                   b.factory_code, b.dept_code, b.line_code
+            from sys_permission t
+            left join sys_log a on a.log_content = t.url and a.log_type = 4
+            left join mes3_pi_allocation_table b on t.url like concat('%/', b.id, '/%')
+            where t.url like '/dataCalculation/pi/allocationTable/QueryTableList/%'
+              and t.url != '/dataCalculation/pi/allocationTable/QueryTableList/:code/:type'
+              and a.create_time >= #{startTime} and a.create_time &lt; #{endTime}
+            <if test="_databaseId == 'postgresql'">
+                <if test="null != deptScope and '' != deptScope">
+                    and (
+                    b.factory_code like concat(#{deptScope}::TEXT, '%')
+                    or b.dept_code like concat(#{deptScope}::TEXT, '%')
+                    or b.line_code like concat(#{deptScope}::TEXT, '%')
+                    )
+                </if>
+            </if>
+            <if test="_databaseId == 'mysql'">
+                <if test="null != deptScope and '' != deptScope">
+                    and (
+                    b.factory_code like concat(#{deptScope}, '%')
+                    or b.dept_code like concat(#{deptScope}, '%')
+                    or b.line_code like concat(#{deptScope}, '%')
+                    )
+                </if>
+            </if>
+        ) t
+        group by t.url, t.name
+    </select>
+</mapper>

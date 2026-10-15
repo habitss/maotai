@@ -1,0 +1,114 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.keytech.modules.project.management.mapper.ProjectManagementActionMapper">
+    <resultMap id="actionSummaryResultMap" type="com.keytech.modules.project.management.entity.ProjectManagementActionSummary">
+        <!-- 映射项目id -->
+        <result property="projectId" column="project_id" />
+        <!-- 映射节点总数 -->
+        <result property="nodeTotal" column="node_total" />
+        <!-- 映射节点完成数 -->
+        <result property="nodeFinishTotal" column="node_finish_total" />
+        <!-- 映射节点延迟数 -->
+        <result property="nodeDelayTotal" column="node_delay_total" />
+        <!-- 映射节点完成率 -->
+        <result property="nodeFinishRate" column="node_finish_rate" />
+        <!-- 映射节点延迟率 -->
+        <result property="nodeDelayRate" column="node_delay_rate" />
+        <!-- 映射行动完成数 -->
+        <result property="actionFinishTotal" column="action_finish_total" />
+        <!-- 映射行动延迟数 -->
+        <result property="actionDelayTotal" column="action_delay_total" />
+        <!-- 映射行动总数 -->
+        <result property="actionTotal" column="action_total" />
+        <!-- 映射行动完成率 -->
+        <result property="actionFinishRate" column="action_finish_rate" />
+        <!-- 映射行动延迟率 -->
+        <result property="actionDelayRate" column="action_delay_rate" />
+
+        <!-- 映射行动总数 -->
+        <result property="month" column="month" />
+        <!-- 映射行动延迟率 -->
+        <result property="weekNumber" column="week_number" />
+        <!-- 映射行动延迟率 -->
+        <result property="weekTotal" column="week_toal" />
+    </resultMap>
+
+    <select id="queryList" resultType="com.keytech.modules.project.management.entity.ProjectManagementAction">
+        select
+        a.sort,
+        b.sort nodeSort,
+        a.id,
+        a.node_id,
+        b.node_name,
+        action_name,
+        a.project_id,
+        leader_dept_id,
+        leader_user_id,
+        leader_user_name,
+        submit_result,
+        plan_completion_time,
+        real_completion_time,
+        action_state,
+        reward,
+        a.remark
+        from mes3_project_management_action a
+        left join mes3_project_management_node b on a.node_id=b.id
+        where a.del_flag = 0
+        <if test="projectId != null and projectId != ''">
+            and a.project_id = #{projectId}
+        </if>
+        order by b.sort is null, b.sort asc, a.sort is null, a.sort asc
+    </select>
+
+    <select id="querySummaryData" resultMap="actionSummaryResultMap">
+        select project_id, node_total, node_finish_total, node_delay_total, action_finish_total, action_delay_total, action_total,
+            ROUND((node_finish_total / node_total) * 100, 2) as node_finish_rate,
+            ROUND((node_delay_total / node_total) * 100, 2) as node_delay_rate,
+            ROUND((action_finish_total / action_total) * 100, 2) as action_finish_rate,
+            ROUND((action_delay_total / action_total) * 100, 2) as action_delay_rate
+        from (
+            select project_id, count(1) as node_total,
+                sum(case when action_finish_total = action_total then 1 else 0 end) as node_finish_total,
+                sum(case when action_delay_total > 0 then 1 else 0 end) as node_delay_total,
+                sum(action_finish_total) as action_finish_total,
+                sum(action_delay_total) as action_delay_total,
+                sum(action_total) as action_total
+            from (
+                select project_id, node_id,
+                    count(1) as action_total,
+                    sum(case when action_state = 1 then 1 else 0 end) as action_finish_total,
+                    sum(case when action_state in (2, 4) then 1 else 0 end) as action_delay_total
+                from `mes3_project_management_action`
+                where del_flag = 0 and create_time like concat(#{year}, '%')
+                group by project_id, node_id
+            ) t
+            group by project_id
+        ) t
+    </select>
+    <select id="queryWeekSummaryData"
+            resultType="com.keytech.modules.project.management.entity.ProjectManagementActionSummary">
+        select a.project_id, month, week_number, sum(case when a.${column} is not null then 1 else 0 end) as weekTotal
+        from mes3_mdm_week t
+        left join mes3_project_management_action a on a.del_flag = 0 and a.${column} >= t.start_date and a.${column} &lt; DATE_ADD(t.end_date, INTERVAL 1 DAY)
+        where year = #{year}
+        and month in
+        <foreach collection="months" item="month" index="index" open="(" close=")" separator=",">
+            #{month}
+        </foreach>
+        group by a.project_id, month, week_number
+    </select>
+    <select id="queryMonthSummaryData"
+            resultType="com.keytech.modules.project.management.entity.ProjectManagementActionSummary">
+        select
+            project_id, month, count(1) as monthTotal
+        from (
+            select project_id, DATE_FORMAT(${column}, '%Y-%c') as month
+            from mes3_project_management_action
+            where del_flag = 0
+            AND ${column} >= concat(#{year}, '-01-01')
+            AND ${column} &lt; DATE_ADD(concat(#{year}, '-12-31'), INTERVAL 1 DAY)
+            AND ${column} IS NOT NULL
+        ) a
+        group by project_id, month
+    </select>
+</mapper>

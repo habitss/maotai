@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.keytech.modules.custom.report.mapper.CustomReportFillInMapper">
+
+    <!--动态写数据-->
+    <insert id="addData">
+        INSERT INTO ${tableName}
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <foreach collection="params.keySet()" item="key" separator=",">
+                ${key}
+            </foreach>
+        </trim>
+        VALUES
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <foreach collection="params.keySet()" item="key" separator=",">
+                #{params[${key}]}
+            </foreach>
+        </trim>
+    </insert>
+
+    <!--动态更新数据-->
+    <update id="updateData">
+        UPDATE ${tableName}
+        <set>
+            <foreach collection="params.keySet()" item="key" separator=",">
+                ${key} = NULLIF(TRIM(#{params[${key}]}), '')
+            </foreach>
+        </set>
+        where id = #{id}
+    </update>
+
+    <update id="removeById">
+        UPDATE ${tableName}
+            set del_flag = 1
+        where id = #{id}
+    </update>
+</mapper>

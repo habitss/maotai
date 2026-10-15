@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.keytech.modules.manage.check.mapper.ManageCheckExecutionRateMapper">
+    <select id="getExecutionRate" resultType="java.util.Map">
+        select a.*, d.depart_name as deptName,p.post_name as postName,u.realname as realName from (
+          SELECT m.dept_code,
+                 m.post_id,
+                 m.inspected_by,
+                 COUNT(*) as plannedCount,
+                 SUM(CASE WHEN m.is_edit = 1 THEN 1 ELSE 0 END) as actualCount
+          FROM mes3_manager_checklist_edit_main m
+          WHERE m.del_flag = 0
+            <if test="null != dept and '' != dept">
+                and m.dept_code LIKE CONCAT( #{dept}, '%' )
+            </if>
+            <if test="null != postId and '' != postId">
+                and m.post_id IN (${postId})
+            </if>
+            <if test="null != checkDateBegin and '' != checkDateEnd">
+                and m.create_time >= #{checkDateBegin}
+                and m.create_time &lt;= #{checkDateEnd}
+            </if>
+          GROUP BY m.dept_code, m.post_id, m.inspected_by
+        ) a
+          LEFT JOIN sys_depart d ON a.dept_code = d.org_code
+          LEFT JOIN mes3_mdm_post p ON a.post_id = p.id
+          LEFT JOIN sys_user u ON a.inspected_by = u.id
+    </select>
+</mapper>

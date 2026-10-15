@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.keytech.modules.pi.mapper.PiTaskParameterMapper">
+
+    <!--查询定时任务-->
+    <select id="getTask" resultType="com.keytech.modules.pi.dto.TaskDataDto">
+        <choose>
+            <when test="_databaseId='postgresql'">
+                select id value,job_desc label  from ${dbTask}.xxl_job_info
+            </when>
+            <otherwise>
+                select id value,job_desc label  from ${dbTask}.xxl_job_info
+            </otherwise>
+        </choose>
+        <where>
+            <if test="null != groupId and '' != groupId">
+                and job_group = #{groupId}
+            </if>
+        </where>
+    </select>
+
+    <select id="queryTask" resultType="com.keytech.modules.pi.dto.TaskDataDto">
+        select id value,job_desc label  from ${dbTask}.xxl_job_info
+        where executor_param != 'exclusion_all'
+        <if test="null != dto.groupId and '' != dto.groupId">
+            and job_group = #{dto.groupId}
+        </if>
+        <if test="null != dto.exclusionTask and '' != dto.exclusionTask">
+            and executor_param != 'exclusion_task'
+        </if>
+        <if test="null != dto.exclusionParam and '' != dto.exclusionParam">
+            and executor_param = #{dto.exclusionParam}
+        </if>
+    </select>
+</mapper>

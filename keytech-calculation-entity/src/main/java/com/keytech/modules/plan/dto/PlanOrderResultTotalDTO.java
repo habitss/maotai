@@ -1,0 +1,44 @@
+package com.keytech.modules.plan.dto;
+
+import io.swagger.v3.oas.annotations.media.Schema;
+import lombok.Data;
+import org.jeecg.common.aspect.annotation.Dict;
+
+@Data
+public class PlanOrderResultTotalDTO {
+
+    @Schema(description = "设备")
+    @Dict(dictTable = "mes3_mdm_device", dicText = "device_name", dicCode = "id")
+    private String deviceId;
+
+    /**任务id*/
+    @Schema(description = "任务")
+    private String taskName;
+
+    @Schema(description = "检查项")
+    private String itemName;
+
+    @Schema(description = "检查项数量")
+    private Integer itemCount;
+
+    @Schema(description = "计划检查数")
+    private Integer planCount;
+
+    @Schema(description = "完成数")
+    private Integer completeCount;
+
+    @Schema(description = "未完成数")
+    private Integer noCompleteCount;
+
+    @Schema(description = "完成率")
+    private Integer completeRate;
+
+    @Schema(description = "合格数量")
+    private Integer orderResultCompleteCount;
+
+    @Schema(description = "不合格数量")
+    private Integer orderResultNoCompleteCount;
+
+    @Schema(description = "合格率")
+    private Integer orderResultRate;
+}

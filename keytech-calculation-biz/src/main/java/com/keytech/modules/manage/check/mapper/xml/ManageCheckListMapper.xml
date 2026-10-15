@@ -1,0 +1,138 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.keytech.modules.manage.check.mapper.ManageCheckListMapper">
+    <resultMap id="ManageCheckListResultMap" type="com.keytech.modules.manage.check.entity.ManageCheckList">
+        <id column="id" property="id" />
+        <result property="tenantId" column="tenant_id"/>
+        <result property="factoryCode" column="factory_code"/>
+        <result property="deptCode" column="dept_code"/>
+        <result property="lineCode" column="line_code"/>
+        <result property="checkDate" column="check_date"/>
+        <result property="week" column="week"/>
+        <result property="checkScope" column="check_scope"/>
+        <result property="checkType" column="check_type"/>
+        <result property="checkUser" column="check_user"/>
+        <result property="checkUserDept" column="check_user_dept"/>
+        <result property="checkUserPost" column="check_user_post"/>
+        <result property="checkOwnerDept" column="check_owner_dept"/>
+        <result property="checkOwnerPost" column="check_owner_post"/>
+        <result property="checkOwnerClassGroup" column="check_owner_class_group"/>
+        <result property="checkOwner" column="check_owner"/>
+        <result property="checkOwnerAdmin" column="check_owner_admin"/>
+        <result property="problemImg" column="problem_img"/>
+        <result property="problemDesc" column="problem_desc"/>
+        <result property="problemType" column="problem_type"/>
+        <result property="problemSubclass" column="problem_subclass"/>
+        <result property="extJson" column="ext_json"/>
+        <result property="fivesCheck" column="fives_check"/>
+        <result property="optimizeImg" column="optimize_img"/>
+        <result property="optimizeDesc" column="optimize_desc"/>
+        <result property="checkUserPostRegion" column="check_user_post_region"/>
+        <result property="ownerPostRegion" column="owner_post_region"/>
+        <result property="createBy" column="create_by"/>
+        <result property="createTime" column="create_time"/>
+        <result property="updateBy" column="update_by"/>
+        <result property="updateTime" column="update_time"/>
+        <result property="rowId" column="row_id"/>
+
+        <association property="actionPlanTrack" javaType="com.keytech.modules.action.plan.entity.ActionPlanTrack">
+            <id property="id" column="action_id"/>
+            <result property="practicalFinishDate" column="practical_finish_date"/>
+            <result property="planFinishDate" column="plan_finish_date"/>
+            <result property="finishState" column="finish_state"/>
+            <result property="verifyUserName" column="verify_user_name"/>
+            <result property="executeUserName" column="execute_user_name"/>
+            <result property="status" column="action_status"/>
+            <result property="actionTitle" column="action_title"/>
+        </association>
+    </resultMap>
+
+    <select id="queryPageList" resultMap="ManageCheckListResultMap">
+        select * from (
+            -- 将id做处理，避免mybatis使用resultMap进行一对多查询时,自动去除相同id,处理方式:(CONCAT_WS('_', a.id, b.id))
+            select
+                IF('1' = #{params.removeRepeat}, a.id, CONCAT_WS('_', a.id, b.id)) as id,
+                a.id as row_id,
+                a.tenant_id, a.factory_code, a.dept_code, a.line_code, a.check_date, a.week,
+                a.check_scope, a.check_type, a.check_user, a.check_user_dept, a.check_user_post,
+                a.check_owner_dept, a.check_owner_post, a.check_owner_class_group, a.check_owner,
+                a.check_owner_admin, a.problem_img, a.problem_desc, a.problem_type, a.problem_subclass,
+                a.ext_json, a.fives_check, a.optimize_img, a.optimize_desc, a.check_user_post_region,
+                a.owner_post_region, a.create_by, a.create_time, a.update_by, a.update_time,
+                b.id as action_id, b.practical_finish_date, b.plan_finish_date, b.finish_state, b.verify_user_name,
+                b.execute_user_name, b.status as action_status, b.action_title
+            from mes3_manage_check_list a
+            left join mes3_action_plan_track b on a.id = b.data_id and b.problem_type_id = #{actionProblemTypeId} and b.del_flag = 0
+            where a.del_flag = 0
+            <if test="null != params.problemType and '' != params.problemType">
+                and a.problem_type like concat(#{params.problemType}, '%')
+            </if>
+            <if test="null != params.problemTypeArr">
+                and a.problem_type in
+                <foreach item="item" collection="params.problemTypeArr" open="(" separator="," close=")">
+                    #{item}
+                </foreach>
+            </if>
+            <if test="null != params.problemSubclass and '' != params.problemSubclass">
+                and a.problem_subclass = #{params.problemSubclass}
+            </if>
+            <if test="null != params.checkUser and '' != params.checkUser">
+                and a.check_user in (${params.checkUser})
+            </if>
+            <if test="null != params.checkOwner and '' != params.checkOwner">
+                and a.check_owner in (${params.checkOwner})
+            </if>
+            <if test="null != params.checkUserDept and '' != params.checkUserDept">
+                and a.check_user_dept in (${params.checkUserDept})
+            </if>
+            <if test="null != params.checkOwnerDept and '' != params.checkOwnerDept">
+                and a.check_owner_dept in (${params.checkOwnerDept})
+            </if>
+            <if test="null != params.checkType and '' != params.checkType">
+                and a.check_type = #{params.checkType}
+            </if>
+            <if test="null != params.checkDate_begin and '' != params.checkDate_begin">
+                and a.check_date >= #{params.checkDate_begin}
+                and a.check_date &lt;= #{params.checkDate_end}
+            </if>
+            <if test="null != params.createTime_begin and '' != params.createTime_begin">
+                and a.create_time >= #{params.createTime_begin}
+                and a.create_time &lt;= DATE_ADD(STR_TO_DATE(#{params.createTime_begin}, '%Y-%m-%d'), INTERVAL 1 DAY)
+            </if>
+            <if test="null != params.deptCode and '' != params.deptCode">
+                and a.dept_code = #{params.deptCode}
+            </if>
+            <if test="null != params.checkUserPost and '' != params.checkUserPost">
+                and a.check_user_post in (${params.checkUserPost})
+            </if>
+            <if test="null != params.checkOwnerPost and '' != params.checkOwnerPost">
+                and a.check_owner_post in (${params.checkOwnerPost})
+            </if>
+
+            <if test="null != params.actionPlanTrack">
+                <if test="null != params.actionPlanTrack.executeUserId and '' != params.actionPlanTrack.executeUserId">
+                    and b.execute_user_id = #{params.actionPlanTrack.executeUserId}
+                </if>
+                <if test="null != params.actionPlanTrack.verifyUserId and '' != params.actionPlanTrack.verifyUserId">
+                    and b.verify_user_id = #{params.actionPlanTrack.verifyUserId}
+                </if>
+                <if test="null != params.actionPlanTrack.status and '' != params.actionPlanTrack.status">
+                    and b.status = #{params.actionPlanTrack.status}
+                </if>
+                <if test="null != params.actionPlanTrack.finishState and '' != params.actionPlanTrack.finishState">
+                    and b.finish_state = #{params.actionPlanTrack.finishState}
+                </if>
+            </if>
+
+            <if test="null != params.enterAction">
+                <if test="1 == params.enterAction">
+                    and b.id is not null
+                </if>
+                <if test="0 == params.enterAction">
+                    and b.id is null
+                </if>
+            </if>
+            order by a.check_date desc, a.id
+        ) a
+    </select>
+</mapper>

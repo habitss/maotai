@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.keytech.modules.df.data.mapper.DfDataLogMapper">
+
+    <insert id="batchInsertOrUpdate" parameterType="java.util.List">
+        INSERT INTO mes3_df_data_log
+        (
+            tenant_id,event_id,start_time,end_time,pi_value,data_json,eop_id,pi_code,
+            pi_name,pi_type,rule_id,status,step_id,batch_id,order_id,running,thing_id,
+            recipe_id,rule_name,recipe_type_id,update_by,update_time
+        )
+        VALUES
+        <foreach collection="list" item="entity" separator=",">
+        (
+            #{entity.tenantId},#{entity.eventId},#{entity.startTime},#{entity.endTime},#{entity.piValue},#{entity.dataJson},
+            #{entity.eopId},#{entity.piCode},#{entity.piName},#{entity.piType},#{entity.ruleId},#{entity.status},#{entity.stepId},
+            #{entity.batchId},#{entity.orderId},#{entity.running},#{entity.thingId},#{entity.recipeId},#{entity.ruleName},
+            #{entity.recipeTypeId},#{entity.updateBy},#{entity.updateTime}
+        )
+        </foreach>
+        ON DUPLICATE KEY UPDATE
+            start_time = VALUES(start_time),
+            end_time = VALUES(end_time),
+            pi_value = VALUES(pi_value),
+            data_json = VALUES(data_json),
+            eop_id = VALUES(eop_id),
+            pi_code = VALUES(pi_code),
+            pi_name = VALUES(pi_name),
+            pi_type = VALUES(pi_type),
+            status = VALUES(status),
+            step_id = VALUES(step_id),
+            batch_id = VALUES(batch_id),
+            order_id = VALUES(order_id),
+            running = VALUES(running),
+            thing_id = VALUES(thing_id),
+            recipe_id = VALUES(recipe_id),
+            rule_name = VALUES(rule_name),
+            recipe_type_id = VALUES(recipe_type_id),
+            update_by = VALUES(update_by),
+            update_time = VALUES(update_time)
+    </insert>
+
+</mapper>

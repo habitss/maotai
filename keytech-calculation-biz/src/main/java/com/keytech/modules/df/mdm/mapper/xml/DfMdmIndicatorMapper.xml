@@ -1,0 +1,214 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.keytech.modules.df.mdm.mapper.DfMdmIndicatorMapper">
+    <insert id="batchInsertOrUpdate">
+        INSERT INTO mes3_mdm_df_indicator
+            (
+            tenant_id, sys_unique_id, data_source_sys_id, sys_unique_code,
+            funloc_code, funloc_desc,
+            ind_busi_area, ind_cen_man_dept, ind_name,
+            ind_fra_t0, ind_fra_t1, ind_fra_t2, ind_fra_t3, ind_fra_t4, ind_fra_t5,
+            ind_stand_code, ind_stand_desc,
+            unit, unit_cn,
+            fac_code, fac_desc,
+            depar_code, depar_desc,
+            process_code, process_desc,
+            line_code, line_desc,
+            equip_code, equip_desc, equip_num, equip_num_desc,
+            acce_equip_code, acce_equip_desc,
+            part_num, part_num_desc, part, part_desc,
+            data_source, cal_meth, cal_formula,
+            remarks, remarks1, remarks2, remarks3,
+            pi_type, rawcam_type, busi_type, procurement_source,
+            energy_type, energy_subtype,
+            synchronous_status,
+            ind_inst_code, inst_use_code,
+            business_status, inst_business_status,
+            rt_data_origin, rt_apply_no, rt_ticket_no,
+            lock_line_status, enable_flag,
+            create_by, create_time, update_by, update_time,
+            check_err_msg, rt_mdm_data_version, sync_time
+            )
+        VALUES
+        <foreach collection="list" item="item" separator=",">
+            (
+            #{item.tenantId}, #{item.sysUniqueId}, #{item.dataSourceSysId}, #{item.sysUniqueCode},
+            #{item.funlocCode}, #{item.funlocDesc},
+            #{item.indBusiArea}, #{item.indCenManDept}, #{item.indName},
+            #{item.indFraT0}, #{item.indFraT1}, #{item.indFraT2}, #{item.indFraT3}, #{item.indFraT4}, #{item.indFraT5},
+            #{item.indStandCode}, #{item.indStandDesc},
+            #{item.unit}, #{item.unitCn},
+            #{item.facCode}, #{item.facDesc},
+            #{item.deparCode}, #{item.deparDesc},
+            #{item.processCode}, #{item.processDesc},
+            #{item.lineCode}, #{item.lineDesc},
+            #{item.equipCode}, #{item.equipDesc}, #{item.equipNum}, #{item.equipNumDesc},
+            #{item.acceEquipCode}, #{item.acceEquipDesc},
+            #{item.partNum}, #{item.partNumDesc}, #{item.part}, #{item.partDesc},
+            #{item.dataSource}, #{item.calMeth}, #{item.calFormula},
+            #{item.remarks}, #{item.remarks1}, #{item.remarks2}, #{item.remarks3},
+            #{item.piType}, #{item.rawcamType}, #{item.busiType}, #{item.procurementSource},
+            #{item.energyType}, #{item.energySubtype},
+            #{item.synchronousStatus},
+            #{item.indInstCode}, #{item.instUseCode},
+            #{item.businessStatus}, #{item.instBusinessStatus},
+            #{item.rtDataOrigin}, #{item.rtApplyNo}, #{item.rtTicketNo},
+            #{item.lockLineStatus}, #{item.enableFlag},
+            #{item.createBy}, #{item.createTime}, #{item.updateBy}, #{item.updateTime},
+            #{item.checkErrMsg}, #{item.rtMdmDataVersion}, NOW()
+            )
+        </foreach>
+        <choose>
+            <when test="_databaseId == 'mysql'">
+                ON DUPLICATE KEY UPDATE
+                funloc_code = VALUES(funloc_code),
+                funloc_desc = VALUES(funloc_desc),
+                ind_busi_area = VALUES(ind_busi_area),
+                ind_cen_man_dept = VALUES(ind_cen_man_dept),
+                ind_name = VALUES(ind_name),
+                ind_fra_t0 = VALUES(ind_fra_t0),
+                ind_fra_t1 = VALUES(ind_fra_t1),
+                ind_fra_t2 = VALUES(ind_fra_t2),
+                ind_fra_t3 = VALUES(ind_fra_t3),
+                ind_fra_t4 = VALUES(ind_fra_t4),
+                ind_fra_t5 = VALUES(ind_fra_t5),
+                ind_stand_code = VALUES(ind_stand_code),
+                ind_stand_desc = VALUES(ind_stand_desc),
+                unit = VALUES(unit),
+                unit_cn = VALUES(unit_cn),
+                fac_code = VALUES(fac_code),
+                fac_desc = VALUES(fac_desc),
+                depar_code = VALUES(depar_code),
+                depar_desc = VALUES(depar_desc),
+                process_code = VALUES(process_code),
+                process_desc = VALUES(process_desc),
+                line_code = VALUES(line_code),
+                line_desc = VALUES(line_desc),
+                equip_code = VALUES(equip_code),
+                equip_desc = VALUES(equip_desc),
+                equip_num = VALUES(equip_num),
+                equip_num_desc = VALUES(equip_num_desc),
+                acce_equip_code = VALUES(acce_equip_code),
+                acce_equip_desc = VALUES(acce_equip_desc),
+                part_num = VALUES(part_num),
+                part_num_desc = VALUES(part_num_desc),
+                part = VALUES(part),
+                part_desc = VALUES(part_desc),
+                data_source = VALUES(data_source),
+                cal_meth = VALUES(cal_meth),
+                cal_formula = VALUES(cal_formula),
+                remarks = VALUES(remarks),
+                remarks1 = VALUES(remarks1),
+                remarks2 = VALUES(remarks2),
+                remarks3 = VALUES(remarks3),
+                pi_type = VALUES(pi_type),
+                rawcam_type = VALUES(rawcam_type),
+                busi_type = VALUES(busi_type),
+                procurement_source = VALUES(procurement_source),
+                energy_type = VALUES(energy_type),
+                energy_subtype = VALUES(energy_subtype),
+                synchronous_status = VALUES(synchronous_status),
+                ind_inst_code = VALUES(ind_inst_code),
+                inst_use_code = VALUES(inst_use_code),
+                business_status = VALUES(business_status),
+                inst_business_status = VALUES(inst_business_status),
+                rt_data_origin = VALUES(rt_data_origin),
+                rt_apply_no = VALUES(rt_apply_no),
+                rt_ticket_no = VALUES(rt_ticket_no),
+                lock_line_status = VALUES(lock_line_status),
+                enable_flag = VALUES(enable_flag),
+                update_by = VALUES(update_by),
+                update_time = VALUES(update_time),
+                check_err_msg = VALUES(check_err_msg),
+                rt_mdm_data_version = VALUES(rt_mdm_data_version),
+                sync_time = NOW()
+            </when>
+            <when test="_databaseId == 'postgresql'">
+                ON CONFLICT (sys_unique_code) DO UPDATE SET
+                funloc_code = EXCLUDED.funloc_code,
+                funloc_desc = EXCLUDED.funloc_desc,
+                ind_busi_area = EXCLUDED.ind_busi_area,
+                ind_cen_man_dept = EXCLUDED.ind_cen_man_dept,
+                ind_name = EXCLUDED.ind_name,
+                ind_fra_t0 = EXCLUDED.ind_fra_t0,
+                ind_fra_t1 = EXCLUDED.ind_fra_t1,
+                ind_fra_t2 = EXCLUDED.ind_fra_t2,
+                ind_fra_t3 = EXCLUDED.ind_fra_t3,
+                ind_fra_t4 = EXCLUDED.ind_fra_t4,
+                ind_fra_t5 = EXCLUDED.ind_fra_t5,
+                ind_stand_code = EXCLUDED.ind_stand_code,
+                ind_stand_desc = EXCLUDED.ind_stand_desc,
+                unit = EXCLUDED.unit,
+                unit_cn = EXCLUDED.unit_cn,
+                fac_code = EXCLUDED.fac_code,
+                fac_desc = EXCLUDED.fac_desc,
+                depar_code = EXCLUDED.depar_code,
+                depar_desc = EXCLUDED.depar_desc,
+                process_code = EXCLUDED.process_code,
+                process_desc = EXCLUDED.process_desc,
+                line_code = EXCLUDED.line_code,
+                line_desc = EXCLUDED.line_desc,
+                equip_code = EXCLUDED.equip_code,
+                equip_desc = EXCLUDED.equip_desc,
+                equip_num = EXCLUDED.equip_num,
+                equip_num_desc = EXCLUDED.equip_num_desc,
+                acce_equip_code = EXCLUDED.acce_equip_code,
+                acce_equip_desc = EXCLUDED.acce_equip_desc,
+                part_num = EXCLUDED.part_num,
+                part_num_desc = EXCLUDED.part_num_desc,
+                part = EXCLUDED.part,
+                part_desc = EXCLUDED.part_desc,
+                data_source = EXCLUDED.data_source,
+                cal_meth = EXCLUDED.cal_meth,
+                cal_formula = EXCLUDED.cal_formula,
+                remarks = EXCLUDED.remarks,
+                remarks1 = EXCLUDED.remarks1,
+                remarks2 = EXCLUDED.remarks2,
+                remarks3 = EXCLUDED.remarks3,
+                pi_type = EXCLUDED.pi_type,
+                rawcam_type = EXCLUDED.rawcam_type,
+                busi_type = EXCLUDED.busi_type,
+                procurement_source = EXCLUDED.procurement_source,
+                energy_type = EXCLUDED.energy_type,
+                energy_subtype = EXCLUDED.energy_subtype,
+                synchronous_status = EXCLUDED.synchronous_status,
+                ind_inst_code = EXCLUDED.ind_inst_code,
+                inst_use_code = EXCLUDED.inst_use_code,
+                business_status = EXCLUDED.business_status,
+                inst_business_status = EXCLUDED.inst_business_status,
+                rt_data_origin = EXCLUDED.rt_data_origin,
+                rt_apply_no = EXCLUDED.rt_apply_no,
+                rt_ticket_no = EXCLUDED.rt_ticket_no,
+                lock_line_status = EXCLUDED.lock_line_status,
+                enable_flag = EXCLUDED.enable_flag,
+                update_by = EXCLUDED.update_by,
+                update_time = EXCLUDED.update_time,
+                check_err_msg = EXCLUDED.check_err_msg,
+                rt_mdm_data_version = EXCLUDED.rt_mdm_data_version,
+                sync_time = NOW()
+            </when>
+        </choose>
+
+    </insert>
+    <select id="queryDeviceTypeGroup" resultType="com.keytech.modules.df.mdm.entity.DfMdmIndicator">
+        select
+            fac_code, depar_code, process_code, line_code, max(equip_desc) as equip_desc,
+            concat(fac_code, '_', depar_code, '_', process_code, '_', line_code, '_', equip_code) as equip_code
+        from mes3_mdm_df_indicator
+        where equip_code is not null
+        group by fac_code, depar_code, process_code, line_code, equip_code
+        order by fac_code, depar_code, process_code, line_code, equip_code
+    </select>
+
+    <select id="queryDeviceGroup" resultType="com.keytech.modules.df.mdm.entity.DfMdmIndicator">
+        select
+            fac_code, depar_code, process_code, line_code, max(equip_desc) as equip_desc, equip_num, max(equip_num_desc) as equip_num_desc,
+            concat(fac_code, '_', depar_code, '_', process_code, '_', line_code, '_', equip_code) as equip_code
+        from mes3_mdm_df_indicator
+        where equip_code is not null
+          and equip_num is not null
+        group by fac_code, depar_code, process_code, line_code, equip_code, equip_num
+        order by fac_code, depar_code, process_code, line_code, equip_code, equip_num
+    </select>
+
+</mapper>

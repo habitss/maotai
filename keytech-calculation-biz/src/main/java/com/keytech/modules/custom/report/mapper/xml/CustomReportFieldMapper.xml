@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.keytech.modules.custom.report.mapper.CustomReportFieldMapper">
+    <!--表新增字段-->
+    <update id="addTableField" parameterType="com.keytech.modules.custom.report.entity.CustomReportField">
+        ALTER TABLE ${tableName} ADD COLUMN ${fieldName}
+            ${fieldType}
+            <if test="type != null and type == 1">(${fieldLength})</if>
+            DEFAULT NULL
+            <!--COMMENT #{name}-->
+    </update>
+
+    <!--获取自定义报表下所有字段-->
+    <select id="getFieldByTableId" resultType="com.keytech.modules.custom.report.entity.CustomReportField">
+        SELECT * FROM mes3_custom_report_field where table_id = #{tableId}
+    </select>
+
+    <!--获取总数-->
+    <select id="getDynamicDataTotal" resultType="int">
+        select count(*) from ${tableName}
+        <where>
+            del_flag=0
+            <if test="condition != null and condition != ''"> ${condition} </if>
+        </where>
+    </select>
+
+    <!--获取分页数据-->
+    <select id="getDynamicDataPage" resultType="java.util.Map">
+        select ${field} from ${tableName}
+        <where>
+            del_flag=0
+            <if test="condition != null and condition != ''"> ${condition} </if>
+        </where>
+        <if test="null != sortField and '' != sortField">
+            order by ${sortField}
+        </if>
+        <if test="pageNo != null and pageNo != null and pageSize != null and pageSize != null">
+            limit #{pageNo}, #{pageSize}
+        </if>
+    </select>
+
+    <select id="getMaxSort" resultType="java.lang.Double">
+        SELECT max(sort) FROM mes3_custom_report_field where table_id = #{tableId}
+    </select>
+</mapper>

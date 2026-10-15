@@ -1,0 +1,167 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.keytech.modules.dcp.data.mapper.SyncDcpDataMapper">
+
+    <insert id="batchInsertOrUpdate" parameterType="java.util.List">
+        INSERT INTO public.mes3_basedata_001
+        (
+            tenant_id,
+            field_0001,
+            field_0002,
+            field_0014,
+            field_0015,
+            field_0003,
+            field_0004,
+            field_0005,
+            field_0006,
+            field_0011,
+            field_0012,
+            field_0013,
+            event_timestamp,
+            field_0016,
+            field_0017,
+            field_0018,
+            field_0020,
+            field_0021,
+            field_0022,
+            field_0023,
+            field_0024,
+            field_0025,
+            field_0026,
+            field_0007,
+            field_0008,
+            field_0009,
+            field_0019
+        )
+        VALUES
+        <foreach collection="list" item="entity" separator=",">
+            (
+                #{entity.tenantId},
+                #{entity.field_0001},
+                #{entity.field_0002},
+                #{entity.field_0014},
+                #{entity.field_0015},
+                #{entity.field_0003},
+                #{entity.field_0004},
+                #{entity.field_0005},
+                #{entity.field_0006},
+                #{entity.field_0011},
+                #{entity.field_0012},
+                #{entity.field_0013},
+                #{entity.event_timestamp},
+                #{entity.field_0016},
+                #{entity.field_0017},
+                #{entity.field_0018},
+                #{entity.field_0020},
+                #{entity.field_0021},
+                #{entity.field_0022},
+                #{entity.field_0023},
+                #{entity.field_0024},
+                #{entity.field_0025},
+                #{entity.field_0026},
+                #{entity.field_0007},
+                #{entity.field_0008},
+                #{entity.field_0009},
+                #{entity.field_0019}
+            )
+        </foreach>
+    </insert>
+    <update id="batchUpdateData">
+        UPDATE public.mes3_basedata_001
+        SET
+            field_0001 = v.field_0001,
+            field_0002 = v.field_0002,
+            field_0014 = v.field_0014,
+            field_0015 = v.field_0015,
+            field_0003 = v.field_0003,
+            field_0004 = v.field_0004,
+            field_0005 = v.field_0005,
+            field_0006 = v.field_0006,
+            field_0012 = v.field_0012::timestamp,
+            field_0013 = v.field_0013,
+            event_timestamp = v.event_timestamp::timestamp,
+            field_0016 = v.field_0016,
+            field_0017 = v.field_0017,
+            field_0018 = v.field_0018,
+            field_0020 = v.field_0020,
+            field_0021 = v.field_0021,
+            field_0022 = v.field_0022,
+            field_0023 = v.field_0023,
+            field_0024 = v.field_0024,
+            field_0025 = v.field_0025,
+            field_0026 = v.field_0026,
+            field_0019 = v.field_0019
+        FROM (
+            VALUES
+            <foreach collection="list" item="item" separator=",">
+                (
+                    #{item.id},
+                    #{item.field_0001},
+                    #{item.field_0002},
+                    #{item.field_0014},
+                    #{item.field_0015},
+                    #{item.field_0003},
+                    #{item.field_0004},
+                    #{item.field_0005},
+                    #{item.field_0006},
+                    #{item.field_0012},
+                    #{item.field_0013},
+                    #{item.event_timestamp},
+                    #{item.field_0016},
+                    #{item.field_0017},
+                    #{item.field_0018},
+                    #{item.field_0020},
+                    #{item.field_0021},
+                    #{item.field_0022},
+                    #{item.field_0023},
+                    #{item.field_0024},
+                    #{item.field_0025},
+                    #{item.field_0026},
+                    #{item.field_0019}
+                )
+            </foreach>
+        ) AS v(
+            id,
+            field_0001,
+            field_0002,
+            field_0014,
+            field_0015,
+            field_0003,
+            field_0004,
+            field_0005,
+            field_0006,
+            field_0012,
+            field_0013,
+            event_timestamp,
+            field_0016,
+            field_0017,
+            field_0018,
+            field_0020,
+            field_0021,
+            field_0022,
+            field_0023,
+            field_0024,
+            field_0025,
+            field_0026,
+            field_0019
+        )
+        WHERE public.mes3_basedata_001.id = v.id
+    </update>
+
+    <select id="queryData" resultType="java.util.Map">
+        select * from public.mes3_basedata_001
+        where field_0020 = #{thingId}
+          and field_0025 = #{recipeId}
+          and field_0003 = #{bbtMtNo}
+        <choose>
+            <when test="flagPoint != null and flagPoint != ''">
+                and field_0026 = #{flagPoint}
+            </when>
+            <otherwise>
+                and field_0026 is null
+            </otherwise>
+        </choose>
+        order by event_timestamp desc
+    </select>
+
+</mapper>

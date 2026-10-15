@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.keytech.modules.opl.mapper.OplReviewPlanMapper">
+
+    <!-- 工厂SOP管理跟踪统计-查各部门opl总数量 -->
+    <select id="getOplTotal" resultType="com.keytech.modules.opl.vo.OplManageVo">
+        select line_code dept, count(1) total, 0 opl_success, 0 opl_plan, 0 opl_delay
+        from mes3_opl_home_page a
+        where del_flag = 0
+        <if test="deptCode != null and deptCode != ''">
+            and dept_code = #{deptCode}
+        </if>
+        group by line_code
+    </select>
+
+    <!-- 工厂SOP管理跟踪统计-查opl总数量 -->
+    <select id="getOplAll" resultType="com.keytech.modules.opl.entity.OplHomePage">
+        select a.id,LEFT(line_code, 12) dept from mes3_opl_home_page a where del_flag = 0
+    </select>
+
+    <!-- 工厂SOP管理跟踪统计-查各部门opl总数量 -->
+    <select id="getOplTotalByDept" resultType="com.keytech.modules.opl.vo.OplManageVo">
+        select LEFT(a.dept_code, 12) as dept,count(1) total,0 opl_success,0 opl_plan,0 opl_delay
+        from mes3_opl_home_page a where del_flag = 0
+        group by LEFT(a.dept_code, 12)
+    </select>
+
+    <!-- 工厂SOP管理跟踪统计-回顾 -->
+    <select id="getOplReviewByDept" resultType="com.keytech.modules.opl.entity.OplReviewPlan">
+        <!--SELECT a.id, a.result_data, LEFT(a.dept_code, 12) as dept -->
+        SELECT a.id, a.result_data, a.dept_code
+        FROM
+            mes3_opl_review_plan a
+        WHERE
+           a.del_flag = '0'
+          AND a.YEAR = #{year}
+    </select>
+</mapper>

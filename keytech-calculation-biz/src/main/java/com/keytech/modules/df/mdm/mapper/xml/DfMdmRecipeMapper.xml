@@ -1,0 +1,120 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.keytech.modules.df.mdm.mapper.DfMdmRecipeMapper">
+    <insert id="batchInsertOrUpdate">
+        INSERT INTO mes3_mdm_df_recipe
+            (
+            tenant_id, line_code, fac_code, fac_desc, depar_code, depar_desc,
+            process_cod, process_desc, line_s_code, recipe_num, recipe_type,
+            recipe_type_desc, fac_recipe_name, fac_recipe_code, zone_recipe_code,
+            zone_recipe_cn_name, sub_brand_og_code, sub_brand_og_cn_name,
+            stand_vol, cont_prod_stand_cycle_time, first_prod_process_time,
+            version_number, equip_code, equip_desc, effe_date, expi_date,
+            busine_status, attr1, attr2, sys_unique_id, sys_unique_code,
+            data_source_sys_id, rt_mdm_data_version, rt_data_origin, rt_apply_no,
+            rt_ticket_no, check_err_msg, enable_flag, create_by, create_time,
+            update_by, update_time, sync_time
+            )
+        VALUES
+        <foreach collection="list" item="item" separator=",">
+            (
+            #{item.tenantId}, #{item.lineCode}, #{item.facCode}, #{item.facDesc}, #{item.deparCode}, #{item.deparDesc},
+            #{item.processCod}, #{item.processDesc}, #{item.lineSCode}, #{item.recipeNum}, #{item.recipeType},
+            #{item.recipeTypeDesc}, #{item.facRecipeName}, #{item.facRecipeCode}, #{item.zoneRecipeCode},
+            #{item.zoneRecipeCnName}, #{item.subBrandOgCode}, #{item.subBrandOgCnName},
+            #{item.standVol}, #{item.contProdStandCycleTime}, #{item.firstProdProcessTime},
+            #{item.versionNumber}, #{item.equipCode}, #{item.equipDesc}, #{item.effeDate}, #{item.expiDate},
+            #{item.busineStatus}, #{item.attr1}, #{item.attr2}, #{item.sysUniqueId}, #{item.sysUniqueCode},
+            #{item.dataSourceSysId}, #{item.rtMdmDataVersion}, #{item.rtDataOrigin}, #{item.rtApplyNo},
+            #{item.rtTicketNo}, #{item.checkErrMsg}, #{item.enableFlag}, #{item.createBy}, #{item.createTime},
+            #{item.updateBy}, #{item.updateTime}, NOW()
+            )
+        </foreach>
+        <choose>
+            <when test="_databaseId == 'mysql'">
+                ON DUPLICATE KEY UPDATE
+                line_code = VALUES(line_code),
+                fac_code = VALUES(fac_code),
+                fac_desc = VALUES(fac_desc),
+                depar_code = VALUES(depar_code),
+                depar_desc = VALUES(depar_desc),
+                process_cod = VALUES(process_cod),
+                process_desc = VALUES(process_desc),
+                line_s_code = VALUES(line_s_code),
+                recipe_num = VALUES(recipe_num),
+                recipe_type = VALUES(recipe_type),
+                recipe_type_desc = VALUES(recipe_type_desc),
+                fac_recipe_name = VALUES(fac_recipe_name),
+                fac_recipe_code = VALUES(fac_recipe_code),
+                zone_recipe_code = VALUES(zone_recipe_code),
+                zone_recipe_cn_name = VALUES(zone_recipe_cn_name),
+                sub_brand_og_code = VALUES(sub_brand_og_code),
+                sub_brand_og_cn_name = VALUES(sub_brand_og_cn_name),
+                stand_vol = VALUES(stand_vol),
+                cont_prod_stand_cycle_time = VALUES(cont_prod_stand_cycle_time),
+                first_prod_process_time = VALUES(first_prod_process_time),
+                version_number = VALUES(version_number),
+                equip_code = VALUES(equip_code),
+                equip_desc = VALUES(equip_desc),
+                effe_date = VALUES(effe_date),
+                expi_date = VALUES(expi_date),
+                busine_status = VALUES(busine_status),
+                attr1 = VALUES(attr1),
+                attr2 = VALUES(attr2),
+                data_source_sys_id = VALUES(data_source_sys_id),
+                rt_mdm_data_version = VALUES(rt_mdm_data_version),
+                rt_data_origin = VALUES(rt_data_origin),
+                rt_apply_no = VALUES(rt_apply_no),
+                rt_ticket_no = VALUES(rt_ticket_no),
+                check_err_msg = VALUES(check_err_msg),
+                enable_flag = VALUES(enable_flag),
+                update_by = VALUES(update_by),
+                update_time = VALUES(update_time),
+                sync_time = NOW()
+            </when>
+            <when test="_databaseId == 'postgresql'">
+                ON CONFLICT (sys_unique_code) DO UPDATE SET
+                line_code = EXCLUDED.line_code,
+                fac_code = EXCLUDED.fac_code,
+                fac_desc = EXCLUDED.fac_desc,
+                depar_code = EXCLUDED.depar_code,
+                depar_desc = EXCLUDED.depar_desc,
+                process_cod = EXCLUDED.process_cod,
+                process_desc = EXCLUDED.process_desc,
+                line_s_code = EXCLUDED.line_s_code,
+                recipe_num = EXCLUDED.recipe_num,
+                recipe_type = EXCLUDED.recipe_type,
+                recipe_type_desc = EXCLUDED.recipe_type_desc,
+                fac_recipe_name = EXCLUDED.fac_recipe_name,
+                fac_recipe_code = EXCLUDED.fac_recipe_code,
+                zone_recipe_code = EXCLUDED.zone_recipe_code,
+                zone_recipe_cn_name = EXCLUDED.zone_recipe_cn_name,
+                sub_brand_og_code = EXCLUDED.sub_brand_og_code,
+                sub_brand_og_cn_name = EXCLUDED.sub_brand_og_cn_name,
+                stand_vol = EXCLUDED.stand_vol,
+                cont_prod_stand_cycle_time = EXCLUDED.cont_prod_stand_cycle_time,
+                first_prod_process_time = EXCLUDED.first_prod_process_time,
+                version_number = EXCLUDED.version_number,
+                equip_code = EXCLUDED.equip_code,
+                equip_desc = EXCLUDED.equip_desc,
+                effe_date = EXCLUDED.effe_date,
+                expi_date = EXCLUDED.expi_date,
+                busine_status = EXCLUDED.busine_status,
+                attr1 = EXCLUDED.attr1,
+                attr2 = EXCLUDED.attr2,
+                data_source_sys_id = EXCLUDED.data_source_sys_id,
+                rt_mdm_data_version = EXCLUDED.rt_mdm_data_version,
+                rt_data_origin = EXCLUDED.rt_data_origin,
+                rt_apply_no = EXCLUDED.rt_apply_no,
+                rt_ticket_no = EXCLUDED.rt_ticket_no,
+                check_err_msg = EXCLUDED.check_err_msg,
+                enable_flag = EXCLUDED.enable_flag,
+                update_by = EXCLUDED.update_by,
+                update_time = EXCLUDED.update_time,
+                sync_time = NOW()
+            </when>
+        </choose>
+
+    </insert>
+
+</mapper>

@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.keytech.modules.pi.mapper.PiStandardMaintenanceMapper">
+
+    <resultMap id="BaseResultMap" type="com.keytech.modules.pi.entity.PiStandardMaintenance">
+            <id property="id" column="id" jdbcType="BIGINT"/>
+            <result property="tenantId" column="tenant_id" jdbcType="INTEGER"/>
+            <result property="factoryCode" column="factory_code" jdbcType="VARCHAR"/>
+            <result property="deptCode" column="dept_code" jdbcType="VARCHAR"/>
+            <result property="lineCode" column="line_code" jdbcType="VARCHAR"/>
+            <result property="manageId" column="manage_id" jdbcType="BIGINT"/>
+            <result property="tableName" column="table_name" jdbcType="VARCHAR"/>
+            <result property="fieldName" column="field_name" jdbcType="VARCHAR"/>
+            <result property="fieldText" column="field_text" jdbcType="VARCHAR"/>
+            <result property="indicatorType" column="indicator_type" jdbcType="VARCHAR"/>
+            <result property="redUp" column="red_up" jdbcType="DOUBLE"/>
+            <result property="redDown" column="red_down" jdbcType="DOUBLE"/>
+            <result property="yellowUp" column="yellow_up" jdbcType="DOUBLE"/>
+            <result property="yellowDown" column="yellow_down" jdbcType="DOUBLE"/>
+            <result property="standardValue" column="standard_value" jdbcType="DOUBLE"/>
+            <result property="sort" column="sort" jdbcType="INTEGER"/>
+            <result property="delFlag" column="del_flag" jdbcType="BIGINT"/>
+            <result property="createTime" column="create_time" jdbcType="TIMESTAMP"/>
+            <result property="updateTime" column="update_time" jdbcType="TIMESTAMP"/>
+            <result property="createBy" column="create_by" jdbcType="VARCHAR"/>
+            <result property="updateBy" column="update_by" jdbcType="VARCHAR"/>
+    </resultMap>
+</mapper>

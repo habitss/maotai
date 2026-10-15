@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.keytech.modules.df.mdm.mapper.DfMdmAlarmtagMapper">
+    <insert id="batchInsertOrUpdate">
+        INSERT INTO mes3_mdm_df_alarmtag
+            (
+            tenant_id, sys_unique_id, sys_unique_code, uniq_id, rt_mdm_data_version, tag_funloc_code, tag_funloc_code2,
+            vfunloc_desc, vfunloc_desc2, iot_attr_code, iot_attr_disp_name, tag_bit, tag_bit_desc, tag_bit_desc2,
+            data_source_sys_id, enable_flag, check_err_msg, create_by, create_time, update_by, update_time, sync_time
+            )
+        VALUES
+        <foreach collection="list" item="item" separator=",">
+            (
+            #{item.tenantId}, #{item.sysUniqueId}, #{item.sysUniqueCode}, #{item.uniqId}, #{item.rtMdmDataVersion}, #{item.tagFunlocCode}, #{item.tagFunlocCode2},
+            #{item.vfunlocDesc}, #{item.vfunlocDesc2}, #{item.iotAttrCode}, #{item.iotAttrDispName}, #{item.tagBit}, #{item.tagBitDesc}, #{item.tagBitDesc2},
+            #{item.dataSourceSysId}, #{item.enableFlag}, #{item.checkErrMsg}, #{item.createBy}, #{item.createTime}, #{item.updateBy}, #{item.updateTime}, NOW()
+            )
+        </foreach>
+        <choose>
+            <when test="_databaseId == 'mysql'">
+                ON DUPLICATE KEY UPDATE
+                    sys_unique_id = VALUES(sys_unique_id),
+                    sys_unique_code = VALUES(sys_unique_code),
+                    rt_mdm_data_version = VALUES(rt_mdm_data_version),
+                    tag_funloc_code = VALUES(tag_funloc_code),
+                    tag_funloc_code2 = VALUES(tag_funloc_code2),
+                    vfunloc_desc = VALUES(vfunloc_desc),
+                    vfunloc_desc2 = VALUES(vfunloc_desc2),
+                    iot_attr_code = VALUES(iot_attr_code),
+                    iot_attr_disp_name = VALUES(iot_attr_disp_name),
+                    tag_bit = VALUES(tag_bit),
+                    tag_bit_desc = VALUES(tag_bit_desc),
+                    tag_bit_desc2 = VALUES(tag_bit_desc2),
+                    data_source_sys_id = VALUES(data_source_sys_id),
+                    enable_flag = VALUES(enable_flag),
+                    check_err_msg = VALUES(check_err_msg),
+                    update_by = VALUES(update_by),
+                    update_time = VALUES(update_time),
+                    sync_time = NOW()
+            </when>
+            <when test="_databaseId == 'postgresql'">
+                ON CONFLICT (sys_unique_code) DO UPDATE SET
+                    sys_unique_id = EXCLUDED.sys_unique_id,
+                    rt_mdm_data_version = EXCLUDED.rt_mdm_data_version,
+                    tag_funloc_code = EXCLUDED.tag_funloc_code,
+                    tag_funloc_code2 = EXCLUDED.tag_funloc_code2,
+                    vfunloc_desc = EXCLUDED.vfunloc_desc,
+                    vfunloc_desc2 = EXCLUDED.vfunloc_desc2,
+                    iot_attr_code = EXCLUDED.iot_attr_code,
+                    iot_attr_disp_name = EXCLUDED.iot_attr_disp_name,
+                    tag_bit = EXCLUDED.tag_bit,
+                    tag_bit_desc = EXCLUDED.tag_bit_desc,
+                    tag_bit_desc2 = EXCLUDED.tag_bit_desc2,
+                    data_source_sys_id = EXCLUDED.data_source_sys_id,
+                    enable_flag = EXCLUDED.enable_flag,
+                    check_err_msg = EXCLUDED.check_err_msg,
+                    update_by = EXCLUDED.update_by,
+                    update_time = EXCLUDED.update_time,
+                    sync_time = NOW()
+            </when>
+        </choose>
+    </insert>
+
+</mapper>

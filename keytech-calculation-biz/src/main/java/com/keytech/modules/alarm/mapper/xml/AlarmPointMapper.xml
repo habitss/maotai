@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.keytech.modules.alarm.mapper.AlarmPointMapper">
+
+    <insert id="batchInsertOrUpdate">
+        INSERT INTO alarm_point
+            (
+            tenant_id, factory_code, dept_code, line_code, device_code, device_id,
+            alarm_pi_code, alarm_name, alarm_category, alarm_sub_category, alarm_level_default,
+            func_loc_code, source_system, enable_flag, remark, sort, create_by, create_time
+            )
+        VALUES
+        <foreach collection="list" item="item" separator=",">
+            (
+            #{item.tenantId}, #{item.factoryCode}, #{item.deptCode}, #{item.lineCode}, #{item.deviceCode}, #{item.deviceId},
+            #{item.alarmPiCode}, #{item.alarmName}, #{item.alarmCategory}, #{item.alarmSubCategory}, #{item.alarmLevelDefault},
+            #{item.funcLocCode}, #{item.sourceSystem}, #{item.enableFlag}, #{item.remark}, #{item.sort}, #{item.createBy}, #{item.createTime}
+            )
+        </foreach>
+        <choose>
+            <when test="_databaseId == 'mysql'">
+                ON DUPLICATE KEY UPDATE
+                factory_code = VALUES(factory_code),
+                dept_code = VALUES(dept_code),
+                line_code = VALUES(line_code),
+                device_code = VALUES(device_code),
+                device_id = VALUES(device_id),
+                alarm_name = VALUES(alarm_name),
+                alarm_category = VALUES(alarm_category),
+                alarm_sub_category = VALUES(alarm_sub_category),
+                alarm_level_default = VALUES(alarm_level_default),
+                source_system = VALUES(source_system),
+                enable_flag = VALUES(enable_flag),
+                remark = VALUES(remark),
+                update_by = VALUES(create_by),
+                update_time = NOW()
+            </when>
+            <when test="_databaseId == 'postgresql'">
+                ON CONFLICT (alarm_pi_code) DO UPDATE SET
+                factory_code = EXCLUDED.factory_code,
+                dept_code = EXCLUDED.dept_code,
+                line_code = EXCLUDED.line_code,
+                device_code = EXCLUDED.device_code,
+                device_id = EXCLUDED.device_id,
+                alarm_name = EXCLUDED.alarm_name,
+                alarm_category = EXCLUDED.alarm_category,
+                alarm_sub_category = EXCLUDED.alarm_sub_category,
+                alarm_level_default = EXCLUDED.alarm_level_default,
+                source_system = EXCLUDED.source_system,
+                enable_flag = EXCLUDED.enable_flag,
+                remark = EXCLUDED.remark,
+                update_by = EXCLUDED.create_by,
+                update_time = NOW()
+            </when>
+        </choose>
+
+    </insert>
+
+</mapper>

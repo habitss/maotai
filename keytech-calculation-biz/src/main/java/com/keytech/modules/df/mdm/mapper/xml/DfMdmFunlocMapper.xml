@@ -1,0 +1,173 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.keytech.modules.df.mdm.mapper.DfMdmFunlocMapper">
+
+    <insert id="batchInsertOrUpdateFunloc">
+
+        INSERT INTO mes3_mdm_df_funloc
+        (
+            funloc_code,funloc_desc,part,attr1,fac_code,depar_code,process_code,line_code,equip_code,
+            equip_num,acce_equip_code,part_num,part_repl,part_type,part_short_en,funloc_code_assi,str_id,
+            size_dime,manu,model,manu_part_num,seri_num,tech_obj_type,manu_country,cons_year,cons_month,
+            main_fac,work_center,main_work_center,abc_mark,cost_center,plan_group,start_date,sys_status,
+            fact_desc,depar_desc,process_desc,equip_desc,acce_equip_desc,part_desc,attr2,attr3,business_status,
+            attr4,attr5,distribute_sap_flag,attr6,attr7,attr8,attr9,attr10,line_desc,equip_num_desc,part_big_type,
+            sys_unique_id,data_source_sys_id,sys_unique_code,enable_flag,create_by,create_time,update_by,update_time,
+            check_err_msg,rt_mdm_data_version, sync_time
+        )
+        VALUES
+        <foreach collection="list" item="item" separator=",">
+            (
+                #{item.funlocCode},#{item.funlocDesc},#{item.part},#{item.attr1},#{item.facCode},#{item.deparCode},
+             #{item.processCode},#{item.lineCode},#{item.equipCode},#{item.equipNum},#{item.acceEquipCode},#{item.partNum}
+            ,#{item.partRepl},#{item.partType},#{item.partShortEn},#{item.funlocCodeAssi},#{item.strId},#{item.sizeDime},
+             #{item.manu},#{item.model},#{item.manuPartNum},#{item.seriNum},#{item.techObjType},#{item.manuCountry},
+             #{item.consYear},#{item.consMonth},#{item.mainFac},#{item.workCenter},#{item.mainWorkCenter},#{item.abcMark},
+             #{item.costCenter},#{item.planGroup},#{item.startDate},#{item.sysStatus},#{item.factDesc},#{item.deparDesc},
+             #{item.processDesc},#{item.equipDesc},#{item.acceEquipDesc},#{item.partDesc},#{item.attr2},#{item.attr3},
+             #{item.businessStatus},#{item.attr4},#{item.attr5},#{item.distributeSapFlag},#{item.attr6},#{item.attr7},
+             #{item.attr8},#{item.attr9},#{item.attr10},#{item.lineDesc},#{item.equipNumDesc},#{item.partBigType},
+             #{item.sysUniqueId},#{item.dataSourceSysId},#{item.sysUniqueCode},#{item.enableFlag},#{item.createBy},
+             #{item.createTime},#{item.updateBy},#{item.updateTime},#{item.checkErrMsg},#{item.rtMdmDataVersion}, NOW()
+            )
+        </foreach>
+        <choose>
+            <when test="_databaseId == 'mysql'">
+                ON DUPLICATE KEY UPDATE
+                funloc_code = VALUES(funloc_code),
+                funloc_desc = VALUES(funloc_desc),
+                part = VALUES(part),
+                attr1 = VALUES(attr1),
+                fac_code = VALUES(fac_code),
+                depar_code = VALUES(depar_code),
+                process_code = VALUES(process_code),
+                line_code = VALUES(line_code),
+                equip_code = VALUES(equip_code),
+                equip_num = VALUES(equip_num),
+                acce_equip_code = VALUES(acce_equip_code),
+                part_num = VALUES(part_num),
+                part_repl = VALUES(part_repl),
+                part_type = VALUES(part_type),
+                part_short_en = VALUES(part_short_en),
+                funloc_code_assi = VALUES(funloc_code_assi),
+                str_id = VALUES(str_id),
+                size_dime = VALUES(size_dime),
+                manu = VALUES(manu),
+                model = VALUES(model),
+                manu_part_num = VALUES(manu_part_num),
+                seri_num = VALUES(seri_num),
+                tech_obj_type = VALUES(tech_obj_type),
+                manu_country = VALUES(manu_country),
+                cons_year = VALUES(cons_year),
+                cons_month = VALUES(cons_month),
+                main_fac = VALUES(main_fac),
+                work_center = VALUES(work_center),
+                main_work_center = VALUES(main_work_center),
+                abc_mark = VALUES(abc_mark),
+                cost_center = VALUES(cost_center),
+                plan_group = VALUES(plan_group),
+                start_date = VALUES(start_date),
+                sys_status = VALUES(sys_status),
+                fact_desc = VALUES(fact_desc),
+                depar_desc = VALUES(depar_desc),
+                process_desc = VALUES(process_desc),
+                equip_desc = VALUES(equip_desc),
+                acce_equip_desc = VALUES(acce_equip_desc),
+                part_desc = VALUES(part_desc),
+                attr2 = VALUES(attr2),
+                attr3 = VALUES(attr3),
+                business_status = VALUES(business_status),
+                attr4 = VALUES(attr4),
+                attr5 = VALUES(attr5),
+                distribute_sap_flag = VALUES(distribute_sap_flag),
+                attr6 = VALUES(attr6),
+                attr7 = VALUES(attr7),
+                attr8 = VALUES(attr8),
+                attr9 = VALUES(attr9),
+                attr10 = VALUES(attr10),
+                line_desc = VALUES(line_desc),
+                equip_num_desc = VALUES(equip_num_desc),
+                part_big_type = VALUES(part_big_type),
+                sys_unique_id = VALUES(sys_unique_id),
+                data_source_sys_id = VALUES(data_source_sys_id),
+                sys_unique_code = VALUES(sys_unique_code),
+                enable_flag = VALUES(enable_flag),
+                create_by = VALUES(create_by),
+                create_time = VALUES(create_time),
+                update_by = VALUES(update_by),
+                update_time = VALUES(update_time),
+                check_err_msg = VALUES(check_err_msg),
+                rt_mdm_data_version = VALUES(rt_mdm_data_version),
+                sync_time = NOW()
+            </when>
+            <when test="_databaseId == 'postgresql'">
+                ON CONFLICT (sys_unique_code) DO UPDATE SET
+                funloc_code = EXCLUDED.funloc_code
+                ,funloc_desc = EXCLUDED.funloc_desc
+                ,part = EXCLUDED.part
+                ,attr1 = EXCLUDED.attr1
+                ,fac_code = EXCLUDED.fac_code
+                ,depar_code = EXCLUDED.depar_code
+                ,process_code = EXCLUDED.process_code
+                ,line_code = EXCLUDED.line_code
+                ,equip_code = EXCLUDED.equip_code
+                ,equip_num = EXCLUDED.equip_num
+                ,acce_equip_code = EXCLUDED.acce_equip_code
+                ,part_num = EXCLUDED.part_num
+                ,part_repl = EXCLUDED.part_repl
+                ,part_type = EXCLUDED.part_type
+                ,part_short_en = EXCLUDED.part_short_en
+                ,funloc_code_assi = EXCLUDED.funloc_code_assi
+                ,str_id = EXCLUDED.str_id
+                ,size_dime = EXCLUDED.size_dime
+                ,manu = EXCLUDED.manu
+                ,model = EXCLUDED.model
+                ,manu_part_num = EXCLUDED.manu_part_num
+                ,seri_num = EXCLUDED.seri_num
+                ,tech_obj_type = EXCLUDED.tech_obj_type
+                ,manu_country = EXCLUDED.manu_country
+                ,cons_year = EXCLUDED.cons_year
+                ,cons_month = EXCLUDED.cons_month
+                ,main_fac = EXCLUDED.main_fac
+                ,work_center = EXCLUDED.work_center
+                ,main_work_center = EXCLUDED.main_work_center
+                ,abc_mark = EXCLUDED.abc_mark
+                ,cost_center = EXCLUDED.cost_center
+                ,plan_group = EXCLUDED.plan_group
+                ,start_date = EXCLUDED.start_date
+                ,sys_status = EXCLUDED.sys_status
+                ,fact_desc = EXCLUDED.fact_desc
+                ,depar_desc = EXCLUDED.depar_desc
+                ,process_desc = EXCLUDED.process_desc
+                ,equip_desc = EXCLUDED.equip_desc
+                ,acce_equip_desc = EXCLUDED.acce_equip_desc
+                ,part_desc = EXCLUDED.part_desc
+                ,attr2 = EXCLUDED.attr2
+                ,attr3 = EXCLUDED.attr3
+                ,business_status = EXCLUDED.business_status
+                ,attr4 = EXCLUDED.attr4
+                ,attr5 = EXCLUDED.attr5
+                ,distribute_sap_flag = EXCLUDED.distribute_sap_flag
+                ,attr6 = EXCLUDED.attr6
+                ,attr7 = EXCLUDED.attr7
+                ,attr8 = EXCLUDED.attr8
+                ,attr9 = EXCLUDED.attr9
+                ,attr10 = EXCLUDED.attr10
+                ,line_desc = EXCLUDED.line_desc
+                ,equip_num_desc = EXCLUDED.equip_num_desc
+                ,part_big_type = EXCLUDED.part_big_type
+                ,sys_unique_id = EXCLUDED.sys_unique_id
+                ,data_source_sys_id = EXCLUDED.data_source_sys_id
+                ,sys_unique_code = EXCLUDED.sys_unique_code
+                ,enable_flag = EXCLUDED.enable_flag
+                ,create_by = EXCLUDED.create_by
+                ,create_time = EXCLUDED.create_time
+                ,update_by = EXCLUDED.update_by
+                ,update_time = EXCLUDED.update_time
+                ,check_err_msg = EXCLUDED.check_err_msg
+                ,rt_mdm_data_version = EXCLUDED.rt_mdm_data_version
+                ,sync_time = NOW()
+            </when>
+        </choose>
+    </insert>
+</mapper>

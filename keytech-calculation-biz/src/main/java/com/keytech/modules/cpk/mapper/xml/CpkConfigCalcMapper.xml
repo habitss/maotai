@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.keytech.modules.cpk.mapper.CpkConfigCalcMapper">
+    <!--查询cpk统计数据-->
+    <select id="getCpkReportList">
+        select
+            d.id as tow_level_id,
+            d.node_name as tow_level_name,
+            c.id as three_level_id,
+            c.node_name as three_level_name,
+            b.id as four_level_id,
+            b.node_name as four_level_name,
+            t.*
+        from (
+            select
+                a.id as five_level_id,
+                a.node_name as five_level_name,
+                a.parent_id as parent_id,
+                a.target_value,
+                a.upper_limit,
+                a.lower_limit,
+                t.calc_year, t.config_id, SUM(record_mean) / count(1) as mean,
+                <foreach collection="monthList" item="month" index="index" separator=",">
+                    <if test="isAll == 1">
+                        MAX(
+                            case
+                            when t.calc_month = #{month}
+                            then t.cp
+                            else 0
+                            end
+                        ) as ${'cp_' + month},
+                        MAX(
+                            case
+                            when t.calc_month = #{month}
+                            then t.cpku
+                            else 0
+                            end
+                        ) as ${'cpku_' + month},
+                        MAX(
+                            case
+                            when t.calc_month = #{month}
+                            then t.cpkl
+                            else 0
+                            end
+                        ) as ${'cpkl_' + month},
+                        MAX(
+                            case
+                            when t.calc_month = #{month}
+                            then t.record_num
+                            else 0
+                            end
+                        ) as ${'record_num_' + month},
+                        MAX(
+                            case
+                            when t.calc_month = #{month}
+                            then t.record_mean
+                            else 0
+                            end
+                        ) as ${'record_mean_' + month},
+                    </if>
+                    MAX(
+                        case
+                        when t.calc_month = #{month}
+                        then t.cpk
+                        else 0
+                    end
+                    ) as ${'cpk_' + month}
+                </foreach>
+            from mes3_cpk_config_calc t
+            left join mes3_cpk_config a on t.config_id = a.id and a.del_flag = 0 and a.node_code like concat(#{code}, '%')
+            WHERE t.del_flag = 0
+            and t.calc_year = #{year}
+            and t.calc_month in
+            <foreach collection="monthList" item="item" index="index" open="(" close=")" separator=",">
+                #{item}
+            </foreach>
+            group by t.calc_year, t.config_id
+        ) t
+        left join mes3_cpk_config b on t.parent_id = b.id
+        left join mes3_cpk_config c on b.parent_id = c.id
+        left join mes3_cpk_config d on c.parent_id = d.id
+        order by d.node_code, c.node_code, b.node_code, t.five_level_id
+    </select>
+
+</mapper>

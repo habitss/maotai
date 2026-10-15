@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.keytech.modules.ems.mapper.AggregationStatusMapper">
+
+    <insert id="batchInsertOrUpdateAggregationStatus" parameterType="java.util.List">
+        INSERT INTO ems_aggregation_status
+        (
+            tenant_id, factory_code, dept_code, line_code, table_id, field_code,
+            tag_id, grain_type, tag_kind, time_point, finish_flag, error_flag,
+            error_msg, retry_count, create_by
+        )
+        VALUES
+        <foreach collection="list" item="item" separator=",">
+        (
+            #{item.tenantId}, #{item.factoryCode}, #{item.deptCode}, #{item.lineCode}, #{item.tableId}, #{item.fieldCode},
+            #{item.tagId},  #{item.grainType}, #{item.tagKind}, #{item.timePoint}, #{item.finishFlag}, #{item.errorFlag},
+            #{item.errorMsg}, #{item.retryCount}, #{item.createBy}
+        )
+        </foreach>
+        ON DUPLICATE KEY UPDATE
+        finish_flag = 0, error_flag = 0, error_msg = '', update_time = NOW(), update_by = 'system'
+    </insert>
+
+</mapper>

@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.keytech.modules.pi.mapper.PiExtractTableFieldMapper">
+
+    <!--查询表中字段-->
+    <select id="getTableField" resultType="com.keytech.modules.pi.vo.ColumnInfoVo">
+        SELECT
+            c.name AS columnName,
+            CAST(ISNULL(ep.value, c.name) AS NVARCHAR(MAX)) AS columnComment
+        FROM sys.tables t
+                 INNER JOIN sys.columns c ON t.object_id = c.object_id
+                 INNER JOIN sys.types ty ON c.user_type_id = ty.user_type_id
+                 LEFT JOIN sys.extended_properties ep ON ep.major_id = t.object_id
+            AND ep.minor_id = c.column_id
+            AND ep.name = 'MS_Description'
+        WHERE t.name = #{tableName}
+        ORDER BY c.column_id;
+    </select>
+
+    <!--查询目标表中字段-->
+    <select id="getTargetTableField" resultType="com.keytech.modules.pi.vo.ColumnInfoVo">
+        SELECT
+            COLUMN_NAME AS columnName,
+                COLUMN_COMMENT AS columnComment
+        FROM INFORMATION_SCHEMA.COLUMNS
+        WHERE TABLE_SCHEMA = #{dbName}
+          AND TABLE_NAME = #{targetTable}
+        ORDER BY ORDINAL_POSITION;
+    </select>
+</mapper>

@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.keytech.modules.alarm.mapper.AlarmEventMapper">
+    <select id="selectCountByAlarmCategory" resultType="com.keytech.modules.alarm.vo.AlarmCountVo">
+        SELECT B.alarm_category AS item, COUNT(A.id) AS cnt
+        FROM alarm_event A
+        LEFT JOIN alarm_point B ON A.alarm_point_id = B.id
+        WHERE A.del_flag = 0
+        <if test="startTime != null">
+            AND A.alarm_time &gt;= #{startTime}
+        </if>
+        <if test="endTime != null">
+            AND A.alarm_time &lt; #{endTime}
+        </if>
+        <if test="factoryCode != null and factoryCode != ''">
+            AND A.dept_code LIKE
+            <if test="_databaseId == 'postgresql'">
+                #{factoryCode} || '%'
+            </if>
+            <if test="_databaseId == 'mysql'">
+                CONCAT(#{factoryCode}, '%')
+            </if>
+        </if>
+        GROUP BY B.alarm_category
+    </select>
+
+    <select id="selectCountByDevice" resultType="com.keytech.modules.alarm.vo.AlarmCountVo">
+        SELECT device_code AS item, COUNT(id) AS cnt
+        FROM alarm_event
+        WHERE del_flag = 0
+        <if test="startTime != null">
+            AND alarm_time &gt;= #{startTime}
+        </if>
+        <if test="endTime != null">
+            AND alarm_time &lt; #{endTime}
+        </if>
+        <if test="factoryCode != null and factoryCode != ''">
+            AND dept_code LIKE
+            <if test="_databaseId == 'postgresql'">
+                #{factoryCode} || '%'
+            </if>
+            <if test="_databaseId == 'mysql'">
+                CONCAT(#{factoryCode}, '%')
+            </if>
+        </if>
+        GROUP BY device_code
+        <if test="orderBy != null and orderBy != ''">
+            ORDER BY ${orderBy}
+        </if>
+        <if test="limit != null">
+            LIMIT ${limit}
+        </if>
+    </select>
+</mapper>

@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.keytech.modules.i18n.mapper.MdmI18nEntryLangMapper">
+
+    <select id="selectByEntryIds" resultType="map">
+        SELECT el.entry_id, el.lang_code, el.content
+        FROM mes3_mdm_i18n_entry_lang el
+        WHERE el.entry_id IN
+        <foreach collection="entryIds" item="entryId" open="(" close=")" separator=",">
+            #{entryId}
+        </foreach>
+    </select>
+
+    <!-- 批量插入或更新 -->
+    <insert id="batchInsertOrUpdate">
+        INSERT INTO mes3_mdm_i18n_entry_lang
+        (
+            tenant_id, entry_id, lang_code, content, create_by
+        )
+        VALUES
+        <foreach collection="list" item="item" separator=",">
+        (
+            #{item.tenantId}, #{item.entryId}, #{item.langCode}, #{item.content}, #{item.createBy}
+        )
+        </foreach>
+        ON DUPLICATE KEY UPDATE
+        content = VALUES(content),
+        update_by = VALUES(create_by),
+        update_time = NOW()
+    </insert>
+
+    <!-- 批量删除（处理空值的情况） -->
+    <delete id="batchDeleteByEntryIdAndLangCodes">
+        DELETE FROM mes3_mdm_i18n_entry_lang
+        WHERE entry_id = #{entryId}
+        AND lang_code IN
+        <foreach collection="langCodes" item="langCode" open="(" close=")" separator=",">
+            #{langCode}
+        </foreach>
+    </delete>
+
+</mapper>

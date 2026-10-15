@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.keytech.modules.sop.mapper.SopReviewPlanMapper">
+
+    <!-- 工厂SOP管理跟踪统计-查各部门sop总数量 -->
+    <select id="getSoptotal" resultType="com.keytech.modules.sop.vo.SopManageVo">
+        select dept, count(1) total, 0 sop_success, 0 sop_plan, 0 sop_delay
+        from (
+            select case when line_code = ''  or line_code is null then dept_code else line_code end as dept
+            from mes3_sop_home_page a
+            where del_flag = 0
+            <if test="deptCode != null and deptCode != ''">
+                and dept_code like concat(#{deptCode}, '%')
+            </if>
+        ) a
+        group by dept
+    </select>
+
+    <!-- 获取诊断计划 -->
+    <select id="getDiagnosisByYear" resultType="com.keytech.modules.sop.entity.SopStatisticData">
+        select case when line_code = ''  or line_code is null then dept_code else line_code end as line_code,
+               a.sop_id,a.result_data,a.dept_code,a.by_check_user_id
+        from mes3_sop_statistic_data  a
+        where year = #{year}
+        and by_check_user_id is not null
+        and del_flag = 0
+        <if test="deptCode != null and deptCode != ''">
+            and dept_code like concat(#{deptCode}, '%')
+        </if>
+    </select>
+
+    <!-- 工厂SOP管理跟踪统计-查sop总数量 -->
+    <select id="getSopAll" resultType="com.keytech.modules.sop.entity.SopHomePage">
+        select a.id,LEFT(line_code, 12) dept from mes3_sop_home_page a where del_flag = 0
+    </select>
+
+    <!-- 工厂SOP管理跟踪统计-查各部门sop总数量 -->
+    <select id="getSoptotalByDept" resultType="com.keytech.modules.sop.vo.SopManageVo">
+        select LEFT(a.dept_code, 12) as dept,count(1) total,0 sop_success,0 sop_plan,0 sop_delay
+        from mes3_sop_home_page a where del_flag = 0
+        group by LEFT(a.dept_code, 12)
+    </select>
+
+    <!-- 工厂SOP管理跟踪统计-回顾 -->
+    <select id="getSopReviewByDept" resultType="com.keytech.modules.sop.entity.SopReviewPlan">
+        <!--SELECT a.id, a.result_data, LEFT(a.dept_code, 12) as dept -->
+        SELECT a.id, a.result_data, a.dept_code
+        FROM
+            mes3_sop_review_plan a
+        WHERE
+           a.del_flag = '0'
+          AND a.YEAR = #{year}
+    </select>
+</mapper>

@@ -1,0 +1,14 @@
+package com.keytech.modules.cpk.service;
+
+import com.keytech.modules.cpk.entity.CpkConfigDetail;
+import com.keytech.base.service.BaseService;
+
+/**
+ * @Description: CPK配置详情
+ * @Author: jeecg-boot
+ * @Date:   2025-12-12
+ * @Version: V1.0
+ */
+public interface ICpkConfigDetailService extends BaseService<CpkConfigDetail> {
+
+}

@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.keytech.modules.pi.mapper.PiExtractTableMapper">
+    <!--- 查询数据 返回数据为map sql是已参数传入的 -->
+    <select id="extractTest" resultType="java.util.Map">
+        select * from mes3_pi_table_001
+    </select>
+
+
+    <!--查询库中表(来源表)-->
+    <select id="getTable" resultType="com.keytech.modules.pi.vo.TableInfoVo">
+        SELECT
+            t.name AS tableName,
+            CAST(ISNULL(ep.value, t.name) AS NVARCHAR(MAX)) AS tableComment
+        FROM sys.tables t
+                 INNER JOIN sys.schemas s ON t.schema_id = s.schema_id
+                 LEFT JOIN sys.extended_properties ep ON ep.major_id = t.object_id
+            AND ep.minor_id = 0
+            AND ep.name = 'MS_Description'
+        WHERE t.is_ms_shipped = 0
+        ORDER BY s.name, t.name;
+    </select>
+
+    <!--查询库中目标表-->
+    <select id="getTargetTable" resultType="com.keytech.modules.pi.vo.TableInfoVo">
+        SELECT
+            TABLE_NAME AS tableName,
+            TABLE_COMMENT AS tableComment
+        FROM INFORMATION_SCHEMA.TABLES
+        WHERE TABLE_SCHEMA = DATABASE()
+          and TABLE_NAME like 'mes3_%'
+        ORDER BY TABLE_NAME;
+    </select>
+
+</mapper>

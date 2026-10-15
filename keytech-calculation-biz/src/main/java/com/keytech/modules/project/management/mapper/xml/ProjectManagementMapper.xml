@@ -1,0 +1,155 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.keytech.modules.project.management.mapper.ProjectManagementMapper">
+    <!--查询项目列表-->
+    <select id="queryAll" resultType="com.keytech.modules.project.management.entity.ProjectManagement">
+        select *
+        from mes3_project_management t
+        <where>
+            del_flag = 0
+            <if test="projectName != null and projectName != ''">
+                and project_name like CONCAT('%',#{projectName},'%')
+            </if>
+            <if test="projectLevelList != null and projectLevelList.size > 0 and projectLevelList != '' ">
+                and project_level in
+                <foreach collection="projectLevelList" item="item" index="index" open="(" close=")" separator=",">
+                    #{item}
+                </foreach>
+            </if>
+            <if test="projectTypelList != null and projectTypelList.size > 0 and projectTypelList != '' ">
+                and project_type in
+                <foreach collection="projectTypelList" item="item" index="index" open="(" close=")" separator=",">
+                    #{item}
+                </foreach>
+            </if>
+            <if test="projectSourceList != null and projectSourceList.size > 0 and projectSourceList != '' ">
+                and project_source in
+                <foreach collection="projectSourceList" item="item" index="index" open="(" close=")" separator=",">
+                    #{item}
+                </foreach>
+            </if>
+            <if test="sysOrgId != null and sysOrgId != ''">
+                and sys_org_id = #{sysOrgId}
+            </if>
+            <if test="monthList != null and monthList.size > 0 and monthList!= '' ">
+                and exists (
+                    select 1 from mes3_project_management_action a
+                    where a.project_id = t.id
+                    and (
+                        DATE_FORMAT( plan_completion_time, '%Y-%m' ) in
+                        <foreach collection="monthList" item="month" index="index" open="(" close=")" separator=",">
+                            concat(#{year}, '-', LPAD(#{month}, 2, '0'))
+                        </foreach>
+                        or
+                        DATE_FORMAT( real_completion_time, '%Y-%m' ) in
+                        <foreach collection="monthList" item="month" index="index" open="(" close=")" separator=",">
+                            concat(#{year}, '-', LPAD(#{month}, 2, '0'))
+                        </foreach>
+                    )
+                )
+            </if>
+        </where>
+        order by create_time desc
+    </select>
+
+    <!--查询部门项目加分-->
+    <select id="getDepartmentalProjectSummary" resultType="com.keytech.modules.project.management.dto.ProjectManagementSummaryDto">
+        select
+        a.id,
+        project_code,
+        project_name,
+        project_level,
+        project_type,
+        sys_org_id,
+        <foreach collection="monthList" item="month" index="index" separator=",">
+            IFNULL(
+                SUM(
+                    case
+                        when b.document_month=#{month}
+                        then ROUND(ifnull(b.add_total_score,0.0), 2)
+                        else 0.0
+                    end
+                ),0.0
+            ) as ${'month' + month}
+        </foreach>
+        from mes3_project_management a
+        left join mes3_project_management_document b on a.id=b.project_id
+        WHERE a.del_flag = 0
+        and b.document_year = #{year}
+        <if test="projectName != null and projectName != ''">
+            and project_name like CONCAT('%',#{projectName},'%')
+        </if>
+        <if test="projectLevelList != null and projectLevelList.size > 0 and projectLevelList!= '' ">
+            and project_level in
+            <foreach collection="projectLevelList" item="item" index="index" open="(" close=")" separator=",">
+                #{item}
+            </foreach>
+        </if>
+        <if test="projectTypelList != null and projectTypelList.size > 0 and projectTypelList != '' ">
+            and project_type in
+            <foreach collection="projectTypelList" item="item" index="index" open="(" close=")" separator=",">
+                #{item}
+            </foreach>
+        </if>
+        <if test="projectSourceList != null and projectSourceList.size > 0 and projectSourceList != '' ">
+            and project_source in
+            <foreach collection="projectSourceList" item="item" index="index" open="(" close=")" separator=",">
+                #{item}
+            </foreach>
+        </if>
+        <if test="sysOrgId != null and sysOrgId != ''">
+            and sys_org_id = #{sysOrgId}
+        </if>
+        group by a.id,a.project_code,a.project_name,a.project_level,a.project_type,a.sys_org_id
+    </select>
+
+    <!--查询个人项目加分-->
+    <select id="getPersonalProjectSummary" resultType="com.keytech.modules.project.management.dto.ProjectManagementSummaryDto">
+        select t.*, ifnull(round(t.reward_personal / a.reward_count * 100, 2), 0) as contribution
+        from (
+            select t.project_id as id, leader_user_id, ifnull(sum(reward), 0) as reward_personal,
+                <foreach collection="monthList" item="month" index="index" separator=",">
+                    round(ifnull(sum(case when month_str = lpad(#{month}, 2, '0') then reward else 0 end), 0), 2) as ${'month' + month}
+                </foreach>
+            from (
+                select t.project_id, t.node_id, t.leader_user_id, t.reward, a.month_str
+                from (
+                    select project_id, node_id, leader_user_id, sum(reward) as reward
+                    from mes3_project_management_action
+                    where del_flag = 0 and project_id in(${projectIds})
+                    <if test="null != userId and '' != userId">
+                        and leader_user_id = #{userId}
+                    </if>
+                    group by project_id, node_id, leader_user_id
+                ) t
+                left join (
+                    select project_id, node_id, month_str
+                    from(
+                        select
+                            project_id, node_id, DATE_FORMAT(max(real_completion_time), '%m') as month_str,
+                            count(1) as node_count,
+                            sum(case when action_state in(1,4) then 1 else 0 end) as finish_count,
+                            max(real_completion_time) as max_month
+                        from mes3_project_management_action
+                        where del_flag = 0
+                        group by project_id, node_id
+                    ) t
+                    where node_count = finish_count
+                    and max_month like concat(#{year}, '%')
+                ) a on t.project_id = a.project_id and t.node_id = a.node_id
+                where t.leader_user_id is not null
+                <if test="null != isFinishNode and '' != isFinishNode">
+                    and a.node_id is not null
+                </if>
+            ) t
+            group by t.project_id, leader_user_id
+        ) t
+        left join (
+            select project_id, sum(reward) reward_count
+            from mes3_project_management_action
+            where del_flag = 0
+            group by project_id
+        ) a on t.id = a.project_id
+        order by t.id, reward_personal desc
+    </select>
+</mapper>

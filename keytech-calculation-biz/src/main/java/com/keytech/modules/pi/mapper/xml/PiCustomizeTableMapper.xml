@@ -1,0 +1,161 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.keytech.modules.pi.mapper.PiCustomizeTableMapper">
+
+
+    <!--动态建表-->
+    <update id="createNewTable" parameterType="com.keytech.modules.pi.entity.PiCustomizeTable">
+        CREATE TABLE ${tableName} (
+          `id` bigint AUTO_INCREMENT,
+          `tenant_id` int(11) COMMENT '租户ID',
+          `factory_code` varchar(80) DEFAULT '' COMMENT '工厂Code',
+          `dept_code` varchar(80)  DEFAULT '' COMMENT '部门Code',
+          `line_code` varchar(80) CHARACTER SET utf8 COLLATE utf8_general_ci DEFAULT '' COMMENT '产线Code',
+          `sort` int(11) DEFAULT NULL COMMENT '排序',
+          `del_flag` bigint DEFAULT 0 COMMENT '0不删除,1为删除',
+          `create_time` datetime DEFAULT CURRENT_TIMESTAMP COMMENT '数据创建时间',
+          `update_time` datetime DEFAULT CURRENT_TIMESTAMP COMMENT '数据更新时间',
+          `create_by` varchar(50) COLLATE utf8mb4_general_ci DEFAULT NULL COMMENT '创建人',
+          `update_by` varchar(50) COLLATE utf8mb4_general_ci DEFAULT NULL COMMENT '更新人',
+          `trigger_json` text COMMENT 'PI触发时间集合',
+
+           INDEX idx_createTime (create_time),
+           INDEX idx_updateTime (update_time),
+          PRIMARY KEY (`id`)
+        )
+        <!--COMMENT= #{name}-->
+    </update>
+
+    <!--动态建子表(扩展)-->
+    <update id="createExtendTable" parameterType="com.keytech.modules.pi.entity.PiCustomizeTable">
+        CREATE TABLE ${tableName} (
+        ${field} bigint AUTO_INCREMENT,
+        PRIMARY KEY (${field})
+        )
+    </update>
+
+
+
+    <!--动态建表pg-->
+    <update id="createNewTablePg" parameterType="com.keytech.modules.pi.entity.PiCustomizeTable">
+        CREATE TABLE ${tableName} (
+           id BIGSERIAL PRIMARY KEY,
+           tenant_id INTEGER,
+           factory_code VARCHAR(80) DEFAULT '' NOT NULL,
+           dept_code VARCHAR(80) DEFAULT '' NOT NULL,
+           line_code VARCHAR(80) DEFAULT '' NOT NULL,
+           sort INTEGER,
+           del_flag BIGINT DEFAULT 0 NOT NULL,
+           create_time TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+           update_time TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+           create_by VARCHAR(50),
+           update_by VARCHAR(50),
+           trigger_json TEXT
+        )
+    </update>
+
+    <!--更新数据属性-->
+    <update id="updateTableCommentsPg" parameterType="com.keytech.modules.pi.entity.PiCustomizeTable">
+        <!-- 添加注释 -->
+        COMMENT ON COLUMN ${tableName}.tenant_id IS '租户ID';
+        COMMENT ON COLUMN ${tableName}.factory_code IS '工厂Code';
+        COMMENT ON COLUMN ${tableName}.dept_code IS '部门Code';
+        COMMENT ON COLUMN ${tableName}.line_code IS '产线Code';
+        COMMENT ON COLUMN ${tableName}.sort IS '排序';
+        COMMENT ON COLUMN ${tableName}.del_flag IS '0不删除,1为删除';
+        COMMENT ON COLUMN ${tableName}.create_time IS '数据创建时间';
+        COMMENT ON COLUMN ${tableName}.update_time IS '数据更新时间';
+        COMMENT ON COLUMN ${tableName}.create_by IS '创建人';
+        COMMENT ON COLUMN ${tableName}.update_by IS '更新人';
+        COMMENT ON COLUMN ${tableName}.trigger_json IS 'PI触发时间集合';
+        <!-- 创建索引 -->
+        CREATE INDEX idx_${tableName}_createTime ON ${tableName} (create_time);
+        CREATE INDEX idx_${tableName}_updateTime ON ${tableName} (update_time);
+    </update>
+
+
+    <!--动态查询-->
+    <select id="getTableData" resultType="java.util.Map">
+        SELECT ${field} FROM ${table} WHERE del_flag = 0 AND ${condition}
+        <if test="sort != null and sort != ''">
+           ORDER BY ${sort}
+        </if>
+        <if test="rowsNumber != null and rowsNumber != '' and rowsNumber != '-1'">
+            LIMIT #{rowsNumber}
+        </if>
+    </select>
+
+    <!--动态写数据-->
+    <insert id="tableSave" useGeneratedKeys="true" keyProperty="mainId.id" keyColumn="id">
+        INSERT INTO ${table}(${fieldStr}) VALUES (${fieldValStr})
+    </insert>
+
+    <!--动态更新数据-->
+    <insert id="tableUpdate">
+        UPDATE ${table}
+        SET ${fieldValStr}
+        WHERE ${condition}
+    </insert>
+
+    <!--获取表名包含"mes3_basedata_"的表数量-->
+    <select id="getBasedataTableNum" resultType="int">
+        SELECT count(1) as num FROM information_schema.TABLES
+        <choose>
+            <when test=" _databaseId == 'mysql'">
+                WHERE TABLE_NAME REGEXP '^mes3_basedata_[0-9]+$'
+                and table_schema = #{dbName}
+            </when>
+            <when test=" _databaseId == 'postgresql'">
+                WHERE TABLE_NAME ~ '^mes3_basedata_[0-9]+$'
+                and table_schema = 'public'
+            </when>
+        </choose>
+    </select>
+
+    <!--PI点位上图查询-->
+    <select id="getPointChartData" resultType="Map">
+        SELECT DATE_FORMAT(${timeCode}, '%Y-%m-%d %H:%i:%s') as timeCode, ${fieldCodes}
+        FROM ${tableCode}
+        where ${timeCode} >= #{searchTimeStart}
+        and ${timeCode} &lt;= #{searchTimeEnd}
+        order by ${timeCode} asc
+    </select>
+
+    <select id="queryPointDiagram" resultType="com.keytech.modules.pi.dto.PointDiagramDto">
+        SELECT id, ${xFieldName} as xFieldName, ${fieldName} as fieldName
+        FROM ${tableName}
+        where del_flag = 0
+            and ${timeField} >= #{searchTimeStart}
+            and ${timeField} &lt;= #{searchTimeEnd}
+            and ${fieldName} is not null
+            ${strSql}
+        order by create_time asc
+    </select>
+    <select id="queryBoxDiagram" resultType="com.keytech.modules.pi.dto.PointDiagramDto">
+        SELECT DATE_FORMAT(${uniqueField}, '%Y-%m-%d') as unique_field, ${fieldName} as field_name
+        FROM ${tableName}
+        where del_flag = 0
+          and ${uniqueField} >= #{searchTimeStart}
+          and ${uniqueField} &lt;= #{searchTimeEnd}
+          and ${fieldName} is not null
+        order by ${uniqueField} asc
+    </select>
+    <select id="getDataByJson" resultType="java.util.Map">
+        SELECT
+            ${field}
+        FROM ${table} m
+        CROSS JOIN JSON_TABLE(
+            m.trigger_json,
+            '$[*]' COLUMNS (
+                field VARCHAR(50) PATH '$.field',
+                calculateSignalId VARCHAR(50) PATH '$.calculateSignalId',
+                time DATETIME PATH '$.time'
+            )
+        ) AS jt
+        WHERE m.trigger_json is not null
+        ${condition}
+        <if test="sort != null and sort != ''">
+            ORDER BY ${sort}
+        </if>
+    </select>
+</mapper>
