@@ -1,0 +1,73 @@
+/* 通用 Flex 填充项 */
+.flex-fill {
+  flex: 1 1 auto;
+  min-width: 0;
+  min-height: 0;
+}
+/* Flex 容器：纵向/横向 */
+.flex-col {
+  display: flex;
+  flex-direction: column;
+}
+.flex-row {
+  display: flex;
+  flex-direction: row;
+}
+/* 居中类 */
+.flex-vcenter {
+  align-items: center;
+}
+.flex-hcenter {
+  justify-content: center;
+}
+/* 垂直 + 水平 居中 */
+.flex-center {
+  justify-content: center;
+  align-items: center;
+}
+/* 水平分布 */
+.flex-between {
+  justify-content: space-between;
+}
+.flex-around {
+  justify-content: space-around;
+}
+.flex-evenly {
+  justify-content: space-evenly;
+}
+/* 对齐起始/末尾 */
+.flex-start {
+  justify-content: flex-start;
+  align-items: flex-start;
+}
+.flex-end {
+  justify-content: flex-end;
+  align-items: flex-end;
+}
+/* 可换行 */
+.flex-wrap {
+  flex-wrap: wrap;
+}
+/* 不换行 */
+.flex-nowrap {
+  flex-wrap: nowrap;
+}
+/* 多行对齐（交叉轴）*/
+.fcontent-start {
+  align-content: flex-start;
+}
+.fcontent-center {
+  align-content: center;
+}
+.fcontent-end {
+  align-content: flex-end;
+}
+.fcontent-between {
+  align-content: space-between;
+}
+.fcontent-around {
+  align-content: space-around;
+}
+.fcontent-stretch {
+  align-content: stretch;
+}

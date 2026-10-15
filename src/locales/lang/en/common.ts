@@ -1,0 +1,28 @@
+export default {
+  okText: 'OK',
+  closeText: 'Close',
+  cancelText: 'Cancel',
+  loadingText: 'Loading...',
+  saveText: 'Save',
+  edit: 'edit',
+  add: 'add',
+  savedSuccessfully:'Saved successfully',
+  delText: 'Delete',
+  resetText: 'Reset',
+  searchText: 'Search',
+  queryText: 'Search',
+  newSuccessfullyAdded: ' Added successfully',
+  networkErrorPleaseContactTheAdministrator:'Network error, please contact the administrator',
+  areYouSureToDeleteThisData: 'Are you sure you want to delete this data?',
+  deleteSucceeded:"Deleted successfully",
+  editSuccessful:'Edited successfully',
+  inputText: 'Please enter',
+  chooseText: 'Please choose',
+
+  redo: 'Refresh',
+  back: 'Back',
+
+  light: 'Light',
+  dark: 'Dark',
+  action: 'Action',
+};
